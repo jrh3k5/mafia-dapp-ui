@@ -4,7 +4,10 @@ import * as game from '../js/game.js'
 export default {
   methods: {
     hostGame: function() {
-      game.hostGame(this.gameState)
+        game.setHostingGame(this.gameState)
+    },
+    joinGame: function() {
+        game.setJoiningGame(this.gameState)
     }
   }
 }
@@ -16,4 +19,6 @@ export default {
 
 <template>
     <button @click="hostGame">Host Game</button>
+
+    <button @click="joinGame">Join Game</button>
 </template>
