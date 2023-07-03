@@ -1,5 +1,3 @@
-import * as game from './js/game.js'
-
 import { createApp } from 'vue'
 import App from './App.vue'
 
