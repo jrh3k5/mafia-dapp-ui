@@ -3,7 +3,7 @@ import Web3 from 'web3'
 // getMafiaContract gets an object that can be used to interact with the Mafia dapp contract
 export function getMafiaContract(nodeURL, contractAddress) {
     const web3 = new Web3(nodeURL);
-    return web3.eth.Contract(mafiaABI, contractAddress);
+    return new web3.eth.Contract(mafiaABI, contractAddress);
 }
 
 const mafiaABI = [

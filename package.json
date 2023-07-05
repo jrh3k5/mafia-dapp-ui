@@ -8,7 +8,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.3.4"
+    "vue": "^3.3.4",
+    "web3": "^4.0.2",
+    "webpack": "^5.88.1"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.2.3",
