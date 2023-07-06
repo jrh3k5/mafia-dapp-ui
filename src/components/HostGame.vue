@@ -1,6 +1,6 @@
 <script>
 import { getMafiaContract } from '../js/mafia_contract.js'
-import { GameAlreadyInitialized, reportError } from '../js/errors.js'
+import { reportError } from '../js/errors.js'
 
 export default {
   data() {
@@ -12,15 +12,11 @@ export default {
   methods: {
     startGame: function() {
       getMafiaContract().startGame(this.expectedPlayerCount).then(() => {
-        // TODO: join the game just hosted
+        // TODO: automatically join the game, then 
       }).catch(err => reportError("Failed to start game", err));
     }
   },
 }
-</script>
-
-<script setup>
-    defineProps(["gameState"])
 </script>
 
 <template>

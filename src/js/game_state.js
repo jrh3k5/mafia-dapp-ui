@@ -2,30 +2,51 @@ const STATE_HOSTING = "hosting"
 const STATE_JOINING = "joining"
 const STATE_WALLET_CONNECTED = "wallet-connected"
 
-export function isHostingGame(gameState) {
-    return getCurrentGameState(gameState) == STATE_HOSTING;
+let gameState;
+
+export function clearGameState() {
+    gameState = null;
 }
 
-export function isWalletConnected(gameState) {
-    return getCurrentGameState(gameState) === STATE_WALLET_CONNECTED;
+export function getGameState() {
+    if (!hasGameState()) {
+        throw "game state not initialized";
+    }
+
+    return gameState;
 }
 
-export function setHostingGame(gameState) {
-    setCurrentGameState(gameState, STATE_HOSTING);
+export function initializeGameState(userAddress) {
+    gameState = new GameState(userAddress);
+    return gameState;
 }
 
-export function setJoiningGame(gameState) {
-    setCurrentGameState(gameState, STATE_JOINING);
-}
+class GameState {
+    constructor(userAddress) {
+        this.userAddress = userAddress;
+    }
 
-export function setWalletConnected(gameState) {
-    setCurrentGameState(gameState, STATE_WALLET_CONNECTED);
-}
+    getHostAddress() {
+        return this.hostAddress;
+    }
 
-function getCurrentGameState(gameState) {
-    return gameState.currentState;
-}
+    getPlayerAddress() {
+        return this.playerAddress;
+    }
 
-function setCurrentGameState(gameState, state) {
-    gameState.currentState = state;
+    isHosting() {
+        return this.hosting;
+    }
+
+    setHostAddress(hostAddress) {
+        this.hostAddress = hostAddress;
+    }
+
+    setIsHosting(hosting) {
+        this.hosting = hosting;
+    }
+
+    setPlayerAddress(playerAddress) {
+        this.playerAddress = playerAddress;
+    }
 }

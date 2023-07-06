@@ -1,5 +1,5 @@
 <script>
-import * as game from '../js/game.js'
+import { getGameState, clearGameState } from '../js/game.js'
 import { getMafiaContract } from '../js/mafia_contract.js'
 import { GameAlreadyInitialized, reportError } from '../js/errors.js'
 
@@ -14,11 +14,15 @@ export default {
     cancelGame: function() {
       getMafiaContract().cancelGame(() => {
         this.gameAlreadyInitialized = false;
+        clearGameState();
       }).catch(err => reportError("Failed to cancel existing game", err));
     },
     hostGame: function() {
         getMafiaContract().initializeGame().then(() => {
-          game.setHostingGame(this.gameState)
+          const gameState = getGameState();
+          gameState.setIsHosting(true);
+          gameState.setHostAddress(gameState.getUserAddress());
+          // TODO: navigate to the join game page
         }).catch(err => {
           if (err === GameAlreadyInitialized) {
             this.gameAlreadyInitialized = true;
@@ -28,14 +32,12 @@ export default {
         });
     },
     joinGame: function() {
-        game.setJoiningGame(this.gameState)
+      const gameState = getGameState();
+      gameState.setIsHosting(false);
+      // TODO: navigate to the join game page
     }
   }
 }
-</script>
-
-<script setup>
-    defineProps(["gameState"])
 </script>
 
 <template>

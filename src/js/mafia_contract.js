@@ -62,6 +62,7 @@ const mafiaABI = [
   // functions
   "function cancelGame() public",
   "function initializeGame() public",
+  "function joinGame(address hostAddress, string playerNickName)",
   "function startGame(uint expectedPlayerCount) public",
   // events
   "event GameInitialized(address indexed hostAddress)",

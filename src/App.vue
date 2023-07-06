@@ -1,5 +1,5 @@
 <script>
-import * as game from './js/game.js'
+import { initializeGameState } from './js/game.js'
 import * as networks from './js/networks.js'
 import * as mafia_contract from './js/mafia_contract.js'
 import * as errors from './js/errors.js'
@@ -8,16 +8,7 @@ import { ethers } from 'ethers'
 export default {
   data() {
     return {
-      gameState: {}
-    }
-  },
-
-  methods: {
-    walletConnected: function() {
-      return game.isWalletConnected(this.gameState);
-    },
-    hostingGame: function() {
-      return game.isHostingGame(this.gameState);
+      walletConnected: false,
     }
   },
 
@@ -29,11 +20,11 @@ export default {
       const provider = new ethers.BrowserProvider(ethereum);
       const walletAddress = accounts[0];
       provider.getSigner(walletAddress).then(signer => {
-        game.setUserWalletAddress(this.gameState, walletAddress)
-        game.setWalletConnected(this.gameState)
+        initializeGameState(walletAddress);
 
-        // for now, just hard-code in Hardhat to faciliate testing
+        // TODO: read selected network and choose the correct contract address
         mafia_contract.initializeMafiaContract(networks.Hardhat.ContractAddress, signer);
+        this.walletConnected = true;
       }).catch(err => errors.reportError("Failed to get signer", err));
     }).catch(err => errors.reportError("Failed to get wallet address; please try again", err));
   },
@@ -41,10 +32,11 @@ export default {
 </script>
 <script setup>
   import Landing from './components/Landing.vue'
-  import HostGame from './components/HostGame.vue'
 </script>
 
 <template>
-  <Landing :game-state="this.gameState" v-if="this.walletConnected()" />
-  <HostGame :game-state="this.gameState" v-if="this.hostingGame()" />
+  <Landing :game-state="this.gameState" v-if="this.walletConnected" />
+  <div v-if="!this.walletConnected">
+    You must connect a wallet to this site in order to play Mafia.
+  </div>
 </template>
