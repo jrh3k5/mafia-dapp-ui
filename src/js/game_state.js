@@ -4,12 +4,18 @@ const STATE_WALLET_CONNECTED = "wallet-connected"
 
 let gameState;
 
-export function clearGameState() {
-    gameState = null;
+// resetGameState resets the game state to a default state
+// It does not clear out the game state, so required initial values (such as user wallet address) are retained.
+export function resetGameState() {
+    if(!gameState) {
+        return;
+    }
+
+    gameState = initializeGameState(gameState.getUserAddress());
 }
 
 export function getGameState() {
-    if (!hasGameState()) {
+    if (!gameState) {
         throw "game state not initialized";
     }
 
@@ -32,6 +38,10 @@ class GameState {
 
     getPlayerAddress() {
         return this.playerAddress;
+    }
+
+    getUserAddress() {
+        return this.userAddress;
     }
 
     isHosting() {

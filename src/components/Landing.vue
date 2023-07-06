@@ -1,5 +1,5 @@
 <script>
-import { getGameState, clearGameState } from '../js/game.js'
+import { getGameState, resetGameState } from '../js/game.js'
 import { getMafiaContract } from '../js/mafia_contract.js'
 import { GameAlreadyInitialized, reportError } from '../js/errors.js'
 
@@ -14,7 +14,7 @@ export default {
     cancelGame: function() {
       getMafiaContract().cancelGame(() => {
         this.gameAlreadyInitialized = false;
-        clearGameState();
+        resetGameState();
       }).catch(err => reportError("Failed to cancel existing game", err));
     },
     hostGame: function() {
