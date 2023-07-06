@@ -8,6 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "ethers": "^6.6.2",
     "vue": "^3.3.4",
     "web3": "^4.0.2",
     "webpack": "^5.88.1"

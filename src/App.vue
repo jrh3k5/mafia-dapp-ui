@@ -3,6 +3,7 @@ import * as game from './js/game.js'
 import * as networks from './js/networks.js'
 import * as mafia_contract from './js/mafia_contract.js'
 import * as errors from './js/errors.js'
+import {ethers } from 'ethers'
 
 export default {
   data() {
@@ -25,12 +26,20 @@ export default {
   // This function will be called when the component is mounted.
   mounted() {
     ethereum.request({ method: 'eth_requestAccounts' })
-      .then(result => {
-        game.setUserWalletAddress(this.gameState, result[0])
-        game.setWalletConnected(this.gameState)
-        // for now, just hard-code in Hardhat to faciliate testing
-        const mafiaContract = mafia_contract.getMafiaContract(networks.Hardhat.URL, networks.Hardhat.ContractAddress);
-        game.setMafiaContract(this.gameState, mafiaContract);
+      .then(accounts => {
+        const provider = new ethers.BrowserProvider(ethereum);
+        const walletAddress = accounts[0];
+        provider.getSigner(walletAddress).then(signer => {
+          game.setUserWalletAddress(this.gameState, walletAddress)
+          game.setWalletConnected(this.gameState)
+
+          // for now, just hard-code in Hardhat to faciliate testing
+          mafia_contract.initializeMafiaContract(networks.Hardhat.ContractAddress, signer);
+        })
+        .catch(err => {
+          errors.reportError("Failed to get signer", err);
+        });
+
       })
       .catch(err => {
         errors.reportError("Failed to get wallet address; please try again", err);

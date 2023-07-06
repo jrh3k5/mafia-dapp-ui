@@ -1,15 +1,45 @@
 <script>
-import * as game from '../js/game.js'
+import { getMafiaContract } from '../js/mafia_contract.js'
 import * as errors from '../js/errors.js'
 
 export default {
-  methods: { },
+  data() {
+    return {
+      gameInitialized: false,
+      expectedPlayerCount: 3,
+    }
+  },
+
+  methods: {
+    startGame: function() {
+      getMafiaContract().startGame(this.expectedPlayerCount).then(tx => {
+        tx.wait().then(tx => {
+          console.log(tx);
+        })
+        .catch(err => {
+          errors.reportError("Transaction to start game failed", err);
+        })
+      })
+      .catch(err => {
+        errors.reportError("Unable to start game", err);
+      })
+    }
+  },
+
   mounted() {
-    game.initializeGame(this.gameState).then(() => {
-      this.gameInitialized = true;
-    }).catch(err => {
-        errors.reportError("failed to initialize game", err);
-    })
+    if (!this.gameInitialized) {
+      getMafiaContract().initializeGame().then(tx => {
+        tx.wait().then(() => {
+          this.gameInitialized = true;
+        })
+        .catch(err => {
+          errors.reportError(err);
+        })
+      })
+      .catch(err => {
+        errors.reportError("Failed to initialize the game", err);
+      })
+    }
   }
 }
 </script>
@@ -24,8 +54,8 @@ export default {
 
     <p />
 
-    <input type="text" />
+    <input v-model="expectedPlayerCount" />
     <br />
-    <button type="submit" on-click="console.log('click click!')">Start Game</button>
+    <button type="submit" @click="this.startGame()">Start Game</button>
   </div>
 </template>
