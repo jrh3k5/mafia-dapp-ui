@@ -36,13 +36,26 @@ class MafiaContract {
         event.removeListener();
       }).then(() => {
         this.contract.initializeGame().then(tx => {
-          tx.wait().then(console.log).catch(reject);
+          tx.wait().catch(reject);
         }).catch(err => {
           if (("" + err).includes("a game cannot be initialized while you are hosting another")) {
             reject(GameAlreadyInitialized)
           }
         });
       }).catch(reject);
+    });
+  }
+
+  joinGame(hostAddress, playerAddress) {
+    return new Promise((resolve, reject) => {
+      this.contract.on(this.contract.filters.GameJoined(hostAddress, playerAddress), (h, p, e) => {
+        resolve();
+        e.removeListener();
+      }).then(() => {
+        this.contract.joinGame(hostAddress, playerAddress).then(tx => {
+          tx.wait().catch(reject);
+        }).catch(reject);
+      });
     });
   }
 

@@ -22,7 +22,7 @@ export default {
           const gameState = getGameState();
           gameState.setIsHosting(true);
           gameState.setHostAddress(gameState.getUserAddress());
-          // TODO: navigate to the join game page
+          this.$router.push('/game/join');
         }).catch(err => {
           if (err === GameAlreadyInitialized) {
             this.gameAlreadyInitialized = true;
@@ -34,7 +34,7 @@ export default {
     joinGame: function() {
       const gameState = getGameState();
       gameState.setIsHosting(false);
-      // TODO: navigate to the join game page
+      this.$router.push('/game/join');
     }
   }
 }
