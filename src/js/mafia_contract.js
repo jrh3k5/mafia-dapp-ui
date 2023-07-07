@@ -57,15 +57,13 @@ class MafiaContract {
   // getPlayerRole gets the player's role in a game hosted by the given host address.
   getPlayerRole(hostAddress) {
     return new Promise((resolve, reject) => {
-      // TODO: call, don't send transaction, as this is a view, not a mutation of contract state
       this.contract.getSelfPlayerInfo(hostAddress).then(txResult => {
-        console.log("txResult", txResult);
         const playerRole = txResult[4];
         switch(playerRole) {
           case 0n:
-            return PlayerRole.PlayerRoleCivilian;
+            resolve(PlayerRole.PlayerRoleCivilian);
           case 1n:
-            return PlayerRole.PlayerRoleMafia;
+            resolve(PlayerRole.PlayerRoleMafia);
           default:
             reject(`unexpected player role return: ${playerRole}`);
         }

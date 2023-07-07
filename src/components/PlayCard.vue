@@ -3,6 +3,7 @@ import { getMafiaContract } from '../js/mafia_contract.js'
 import { requireGameState } from '../js/game_state.js'
 import { reportError, reportGetContractError } from '../js/errors.js'
 import * as PlayerRole from '../js/player_role.js'
+import { ResolverMethodMissingError } from 'web3'
 
 export default {
     data() {
@@ -14,6 +15,12 @@ export default {
 
     mounted() {
         const hostAddress = requireGameState().getHostAddress();
+        if (!hostAddress) {
+            reportError("No host address could be retrieved from the game state; you will be taken to the main page now to restart your game", null);
+            this.$router.push('/landing');
+            return;
+        }
+        
         getMafiaContract().then(contract => {
             contract.getPlayerRole(hostAddress).then(playerRole => {
                 this.isMafia = playerRole === PlayerRole.PlayerRoleMafia;

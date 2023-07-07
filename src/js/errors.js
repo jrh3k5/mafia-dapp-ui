@@ -1,5 +1,7 @@
 export function reportError(msg, err) {
-    console.error(err);
+    if(err) {
+        console.error(err);
+    }
     alert(msg);
 }
 

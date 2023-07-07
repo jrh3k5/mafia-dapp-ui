@@ -30,6 +30,7 @@ export default {
         },
         joinGame: function() {
             const gameState = requireGameState();
+            gameState.setHostAddress(this.hostAddress);
             const playerAddress = gameState.getUserAddress();
             getMafiaContract().then(contract => {
                 contract.joinGame(this.hostAddress, playerAddress).then(() => {
