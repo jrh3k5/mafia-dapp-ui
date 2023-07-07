@@ -29,7 +29,7 @@ export default {
 
     <p />
 
-    <button type="submit" @click="startPlaying">Start Playing</button>
+    <button type="submit" @click="this.startPlaying()">Start Playing</button>
     <p />
     <button type="submit" @click="this.cancel()">Cancel</button>
 </template>

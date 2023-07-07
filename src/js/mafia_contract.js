@@ -45,6 +45,16 @@ class MafiaContract {
     this.signerAddress = signerAddress;
   }
 
+  // accuseAsMafia accuses a player at the given address in a game hosted by a player identified by the given address as Mafia.
+  // It returns a Promise that rejects if the accusation fails and resolves if the accusation is accepted.
+  accuseAsMafia(hostAddress, accusedAddress) {
+    return new Promise((resolve, reject) => {
+      this.contract.accuseAsMafia(hostAddress, accusedAddress).then(txResult => {
+        txResult.wait().then(resolve).catch(reject);
+      }).catch(reject);
+    })
+  }
+
   // cancelGame returns a Promise that cancels an existing game
   cancelGame() {
     // Return a new promise to ensure that the transaction is submitted before continuing on.
@@ -148,6 +158,7 @@ class MafiaContract {
 
 const mafiaABI = [
   // functions
+  "function accuseAsMafia(address hostAddress, address accused)",
   "function cancelGame()",
   "function initializeGame()",
   "function getPlayerList(address hostAddress) view returns(tuple(address walletAddress, string nickname)[])",

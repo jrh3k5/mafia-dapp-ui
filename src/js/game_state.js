@@ -1,8 +1,3 @@
-// TimeOfDayNight describes when the game is running at night
-export const TimeOfDayNight = "night";
-// TimeOfDayDay describes when the game is running at day
-export const TimeOfDayDay = "day";
-
 let gameState = null;
 
 // resetGameState resets the game state to a default state
