@@ -1,21 +1,41 @@
 import { Contract } from 'ethers'
 import { GameAlreadyInitialized } from './errors.js'
+import { getGameState } from './game_state.js';
 import * as PlayerRole from './player_role.js'
 
 let mafiaContract;
 
-// getMafiaContract gets a MafiaContract, if it has been initialized, for interacting with the Mafia dapp
+// getMafiaContract gets a MafiaContract, if it has been initialized, for interacting with the Mafia dapp.
+// This returns a Promise that either resolves to an instance of MafiaContract or fails with the cause of an error.
 export function getMafiaContract() {
-  if (!mafiaContract) {
-    throw 'Mafia contract has not been initialized';
-  }
-  return mafiaContract;
+  return new Promise((resolve, reject) => {
+    if(mafiaContract) {
+      resolve(mafiaContract);
+      return;
+    }
+    
+    // Try to re-initialize it from game state
+    const gameState = getGameState();
+    if (!gameState) {
+      reject('Mafia contract has not been initialized');
+      return;
+    }
+
+    const userAddress = gameState.getUserAddress();
+    const provider = new ethers.BrowserProvider(ethereum);
+    provider.getSigner(userAddress).then(signer => {
+      const mafiaContract = initializeMafiaContract(gameState.getContractAddress(), userAddress);
+      resolve(mafiaContract);
+    }).catch(reject);
+  })
 }
 
-// initializeMafiaContract sets the Mafia contract instancce to be used by the application
+// initializeMafiaContract sets the Mafia contract instancce to be used by the application.
+// This returns the initialized MafiaContract instance.
 export function initializeMafiaContract(contractAddress, signer) {
   const contract = new Contract(contractAddress, mafiaABI, signer)
   mafiaContract = new MafiaContract(contract, signer.address);
+  return mafiaContract;
 }
 
 class MafiaContract {
@@ -26,7 +46,11 @@ class MafiaContract {
 
   // cancelGame returns a Promise that cancels an existing game
   cancelGame() {
-    return this.contract.cancelGame();
+    // Return a new promise to ensure that the transaction is submitted before continuing on.
+    // Otherwise, funky things happen with the game state.
+    return new Promise((resolve, reject) => {
+      this.contract.cancelGame().then(resolve).catch(reject);
+    })
   }
 
   // getPlayerRole gets the player's role in a game hosted by the given host address.

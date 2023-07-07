@@ -9,7 +9,7 @@ let gameState = null;
 export function resetGameState() {
     localStorage.removeItem("game-state");
     if(gameState) {
-        gameState = initializeGameState(gameState.getUserAddress());
+        gameState = initializeGameState(gameeState.getContractAddress(), gameState.getUserAddress());
     }
 }
 
@@ -73,7 +73,14 @@ class GameState {
             return false;
         }
 
+        // If the data is missing the bare minimum, don't hydrate
         const restoredState = JSON.parse(storedState);
+        if (!restoredState.userAddress || !restoredState.contractAddress) {
+            console.warn("Stored game state is missing minimum required fields; game state will not be hydrated from it", storedState);
+            localStorage.removeItem("game-state");
+            return false;
+        }
+
         Object.assign(this, restoredState);
         return true;
     }

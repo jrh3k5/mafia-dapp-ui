@@ -1,7 +1,7 @@
 <script>
 import { getGameState, requireGameState, resetGameState } from '../js/game.js'
 import { getMafiaContract } from '../js/mafia_contract.js'
-import { GameAlreadyInitialized, reportError } from '../js/errors.js'
+import { GameAlreadyInitialized, reportError, reportGetContractError } from '../js/errors.js'
 
 export default {
   data() {
@@ -12,25 +12,29 @@ export default {
 
   methods: {
     cancelGame: function() {
-      getMafiaContract().cancelGame().then(() => {
-        this.gameAlreadyInitialized = false;
-        resetGameState();
-      }).catch(err => reportError("Failed to cancel existing game", err));
+      getMafiaContract().then(contract => {
+        contract.cancelGame().then(() => {
+          this.gameAlreadyInitialized = false;
+          resetGameState();
+        }).catch(err => reportError("Failed to cancel existing game", err));
+      }).catch(reportGetContractError);
     },
     hostGame: function() {
-      getMafiaContract().initializeGame().then(() => {
-        const gameState = requireGameState();
-        gameState.setIsHosting(true);
-        gameState.setIsPlaying(false);
-        gameState.setHostAddress(gameState.getUserAddress());
-        this.$router.push('/game/join');
-      }).catch(err => {
-        if (err === GameAlreadyInitialized) {
-          this.gameAlreadyInitialized = true;
-        } else {
-          reportError("Failed to initialize the game", err)
-        }
-      });
+      getMafiaContract().then(contract => {
+        contract.initializeGame().then(() => {
+          const gameState = requireGameState();
+          gameState.setIsHosting(true);
+          gameState.setIsPlaying(false);
+          gameState.setHostAddress(gameState.getUserAddress());
+          this.$router.push('/game/join');
+        }).catch(err => {
+          if (err === GameAlreadyInitialized) {
+            this.gameAlreadyInitialized = true;
+          } else {
+            reportError("Failed to initialize the game", err)
+          }
+        });
+      }).catch(reportGetContractError);
     },
     joinGame: function() {
       const gameState = requireGameState();
@@ -49,7 +53,6 @@ export default {
 
   mounted() {
     const gameState = getGameState()
-    console.log("gameState", gameState);
     if (gameState) {
       if (gameState.isHosting()) {
         // go ahead and automatically take the user to the hosting page

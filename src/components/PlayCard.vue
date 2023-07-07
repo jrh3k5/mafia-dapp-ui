@@ -1,7 +1,7 @@
 <script>
 import { getMafiaContract } from '../js/mafia_contract.js'
 import { requireGameState } from '../js/game_state.js'
-import { reportError } from '../js/errors.js'
+import { reportError, reportGetContractError } from '../js/errors.js'
 import * as PlayerRole from '../js/player_role.js'
 
 export default {
@@ -14,10 +14,12 @@ export default {
 
     mounted() {
         const hostAddress = requireGameState().getHostAddress();
-        getMafiaContract().getPlayerRole(hostAddress).then(playerRole => {
-            this.isMafia = playerRole === PlayerRole.PlayerRoleMafia;
-            this.isCivilian = playerRole === PlayerRole.PlayerRoleCivilian;
-        }).catch(err => reportError("Failed to get player's information", err));
+        getMafiaContract().then(contract => {
+            contract.getPlayerRole(hostAddress).then(playerRole => {
+                this.isMafia = playerRole === PlayerRole.PlayerRoleMafia;
+                this.isCivilian = playerRole === PlayerRole.PlayerRoleCivilian;
+            }).catch(err => reportError("Failed to get player's information", err));
+        }).catch(reportGetContractError);
     }
 }
 </script>

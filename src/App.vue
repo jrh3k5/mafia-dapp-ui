@@ -20,19 +20,18 @@ export default {
       const provider = new ethers.BrowserProvider(ethereum);
       const walletAddress = window.ethereum.selectedAddress;
       provider.getSigner(walletAddress).then(signer => {
-        initializeGameState(walletAddress);
-
         // TODO: read selected network and choose the correct contract address
-        initializeMafiaContract(Hardhat.ContractAddress, signer);
+        const contractAddress = Hardhat.ContractAddress;
+
+        initializeGameState(contractAddress, walletAddress);
+
+        initializeMafiaContract(contractAddress, signer);
         this.walletConnected = true;
         this.$router.push('/landing');
       }).catch(err => reportError("Failed to get signer", err));
     }).catch(err => reportError("Failed to get wallet address; please try again", err));
   },
 }
-</script>
-<script setup>
-  import Landing from './components/Landing.vue'
 </script>
 
 <template>

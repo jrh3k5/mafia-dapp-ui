@@ -1,7 +1,7 @@
 <script>
 import { getMafiaContract } from '../js/mafia_contract.js'
 import { requireGameState, resetGameState } from '../js/game_state.js'
-import { reportError } from '../js/errors.js'
+import { reportError, reportGetContractError } from '../js/errors.js'
 
 export default {
   data() {
@@ -12,16 +12,20 @@ export default {
 
   methods: {
     cancelGame: function() {
-      getMafiaContract().cancelGame().then(() => {
-        resetGameState();
-        this.$router.push('/landing');
-      }).catch(err => reportError("Failed to cancel game", err));
+      getMafiaContract().then(contract => {
+        contract.cancelGame().then(() => {
+          resetGameState();
+          this.$router.push('/landing');
+        }).catch(err => reportError("Failed to cancel game", err));
+      }).catch(reportGetContractError)
     },
     startGame: function() {
-      getMafiaContract().startGame(this.expectedPlayerCount).then(() => {
-        requireGameState().setIsStarted(true);
-        this.$router.push('/game/play');
-      }).catch(err => reportError("Failed to start game", err));
+      getMafiaContract().then(contract => {
+        contract.startGame(this.expectedPlayerCount).then(() => {
+          requireGameState().setIsStarted(true);
+          this.$router.push('/game/play');
+        }).catch(err => reportError("Failed to start game", err));
+      }).catch(reportGetContractError);
     }
   },
 

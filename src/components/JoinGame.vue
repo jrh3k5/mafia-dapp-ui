@@ -1,7 +1,7 @@
 <script>
 import { getMafiaContract } from '../js/mafia_contract.js'
 import { requireGameState, resetGameState } from '../js/game_state.js'
-import { reportError } from '../js/errors.js'
+import { reportError, reportGetContractError } from '../js/errors.js'
 
 export default {
     data() {
@@ -15,9 +15,11 @@ export default {
     methods: {
         cancel: function() {
             if (this.userIsHost) {
-                getMafiaContract().cancelGame().then(() => {
-                    resetGameState();
-                }).catch(err => reportError("Failed to cancel game", err))
+                getMafiaContract().then(contract => {
+                    contract.cancelGame().then(() => {
+                        resetGameState();
+                    }).catch(err => reportError("Failed to cancel game", err))
+                }).catch(reportGetContractError)
                 .finally(() => {
                     this.$router.push('/landing');
                 })
@@ -29,13 +31,15 @@ export default {
         joinGame: function() {
             const gameState = requireGameState();
             const playerAddress = gameState.getUserAddress();
-            getMafiaContract().joinGame(this.hostAddress, playerAddress).then(() => {
-                if (gameState.isHosting()) {
-                    this.$router.push('/game/host');
-                } else {
-                    this.$router.push('/game/join/waiting');
-                }
-            }).catch(err => reportError("Failed to join game", err));
+            getMafiaContract().then(contract => {
+                contract.joinGame(this.hostAddress, playerAddress).then(() => {
+                    if (gameState.isHosting()) {
+                        this.$router.push('/game/host');
+                    } else {
+                        this.$router.push('/game/join/waiting');
+                    }
+                }).catch(err => reportError("Failed to join game", err));
+            }).catch(reportGetContractError)
         }
     },
 
