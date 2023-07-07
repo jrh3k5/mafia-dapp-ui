@@ -37,11 +37,19 @@ export default {
       gameState.setIsHosting(false);
       gameState.setIsPlaying(true);
       this.$router.push('/game/join');
+    },
+    resumeHosting: function() {
+      const gameState = requireGameState();
+      gameState.setIsHosting(true);
+      gameState.setIsPlaying(false);
+      gameState.setHostAddress(gameState.getUserAddress());
+      this.$router.push('/game/join');
     }
   },
 
   mounted() {
     const gameState = getGameState()
+    console.log("gameState", gameState);
     if (gameState) {
       if (gameState.isHosting()) {
         // go ahead and automatically take the user to the hosting page
@@ -62,8 +70,10 @@ export default {
     <button @click="joinGame">Join Game</button>
   </div>
   <div v-if="this.gameAlreadyInitialized">
-    You are already running a game. Would you like to cancel the existing game?
+    You are already running a game. Would you like to resume or cancel the existing game?
     <br />
+    <button type="submit" @click="this.resumeHosting()">Resume Game</button>
+    <p />
     <button type="submit" @click="this.cancelGame()">Cancel Game</button>
   </div>
 </template>

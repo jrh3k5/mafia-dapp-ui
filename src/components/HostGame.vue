@@ -19,7 +19,7 @@ export default {
     },
     startGame: function() {
       getMafiaContract().startGame(this.expectedPlayerCount).then(() => {
-        requireGameState().setStarted(true);
+        requireGameState().setIsStarted(true);
         this.$router.push('/game/play');
       }).catch(err => reportError("Failed to start game", err));
     }

@@ -1,11 +1,15 @@
 <script>
-import { requireGameState } from '../js/game_state.js'
+import { resetGameState, requireGameState } from '../js/game_state.js'
 
 export default {
     methods: {
+        cancel: function() {
+            resetGameState();
+            this.$router.push('/landing');
+        },
         // TODO: watch for game start event instead of making the user click a button
         startPlaying: function() {
-            requireGameState().setStarted(true);
+            requireGameState().setIsStarted(true);
             this.$router.push('/game/play');
         }
     },
@@ -26,4 +30,6 @@ export default {
     <p />
 
     <button type="submit" @click="startPlaying">Start Playing</button>
+    <p />
+    <button type="submit" @click="this.cancel()">Cancel</button>
 </template>

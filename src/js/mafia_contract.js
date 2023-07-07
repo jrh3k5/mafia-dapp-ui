@@ -1,5 +1,6 @@
-import { Contract } from 'ethers';
-import { GameAlreadyInitialized } from './errors.js';
+import { Contract } from 'ethers'
+import { GameAlreadyInitialized } from './errors.js'
+import * as PlayerRole from './player_role.js'
 
 let mafiaContract;
 
@@ -31,16 +32,18 @@ class MafiaContract {
   // getPlayerRole gets the player's role in a game hosted by the given host address.
   getPlayerRole(hostAddress) {
     return new Promise((resolve, reject) => {
-      console.log("getting self info for game by ", hostAddress);
       // TODO: call, don't send transaction, as this is a view, not a mutation of contract state
       this.contract.getSelfPlayerInfo(hostAddress).then(txResult => {
         console.log("txResult", txResult);
-        console.log("txResult[0]", txResult[0]);
-        txResult.wait().then(txReceipt => {
-          console.log("txReceipt", txReceipt);
-          console.log("txReceipt[0]", txReceipt[0]);
-          resolve();
-        }).catch(reject);
+        const playerRole = txResult[4];
+        switch(playerRole) {
+          case 0n:
+            return PlayerRole.PlayerRoleCivilian;
+          case 1n:
+            return PlayerRole.PlayerRoleMafia;
+          default:
+            reject(`unexpected player role return: ${playerRole}`);
+        }
       }).catch(reject);
     })
   }
@@ -79,7 +82,7 @@ class MafiaContract {
   startGame(expectedPlayerCount) {
     return new Promise((resolve, reject) => {
       this.contract.startGame(expectedPlayerCount).then(tx => {
-        tx.wait().then(console.log).then(() => {
+        tx.wait().then(() => {
           // TODO: listen for game started event
           resolve();
         }).catch(reject);
@@ -90,11 +93,11 @@ class MafiaContract {
 
 const mafiaABI = [
   // functions
-  "function cancelGame() public",
-  "function initializeGame() public",
-  "function getSelfPlayerInfo(address hostAddress) public view returns(tuple(address walletAddress, string nickname, bool dead, bool convicted, uint playerRole))",
+  "function cancelGame()",
+  "function initializeGame()",
+  "function getSelfPlayerInfo(address hostAddress) view returns(tuple(address walletAddress, string nickname, bool dead, bool convicted, uint playerRole))",
   "function joinGame(address hostAddress, string playerNickName)",
-  "function startGame(uint expectedPlayerCount) public",
+  "function startGame(uint expectedPlayerCount)",
   // events
   "event GameInitialized(address indexed hostAddress)",
   "event GameJoined(address indexed hostAddress, address indexed playerAddress)",

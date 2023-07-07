@@ -36,15 +36,21 @@ export function requireGameState() {
     throw "game state not initialized";
 }
 
-export function initializeGameState(userAddress) {
-    const gameState = new GameState(userAddress);
+export function initializeGameState(contractAddress, userAddress) {
+    const gameState = new GameState(contractAddress, userAddress);
     gameState.toStorage();
     return gameState;
 }
 
 class GameState {
-    constructor(userAddress) {
+    constructor(contractAddress, userAddress) {
+        this.contractAddress = contractAddress;
         this.userAddress = userAddress;
+    }
+
+    // getContractAddress gets the address of the contract instance of the game
+    getContractAddress() {
+        return this.contractAddress;
     }
 
     getHostAddress() {
@@ -114,6 +120,7 @@ class GameState {
 
     toStorage() {
         const toStore = {
+            contractAddress: this.contractAddress,
             hostAddress: this.hostAddress,
             hosting: this.hosting,
             playerAddress: this.playerAddress,

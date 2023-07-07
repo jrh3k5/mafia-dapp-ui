@@ -22,8 +22,6 @@ export default {
                     this.$router.push('/landing');
                 })
             } else {
-                // TODO: remove
-                console.log("canceling");
                 resetGameState();
                 this.$router.push('/landing');
             }
