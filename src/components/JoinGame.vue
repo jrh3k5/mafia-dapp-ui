@@ -29,7 +29,6 @@ export default {
         },
         joinGame: function() {
             getMafiaContract().then(contract => {
-                console.log("joining host address " + this.hostAddress + " as '" + this.userNickname + "'");
                 contract.joinGame(this.hostAddress, this.userNickname).then(() => {
                     const gameState = requireGameState();
                     gameState.setHostAddress(this.hostAddress);
@@ -103,7 +102,7 @@ export default {
         
         <p />
 
-        <button type="submit" @click="this.resumeGame()">Join Game</button>
+        <button type="submit" @click="this.resumeGame()">Resume Game</button>
         <p />
         <button type="submit" @click="this.cancel()">Cancel</button>
     </div>

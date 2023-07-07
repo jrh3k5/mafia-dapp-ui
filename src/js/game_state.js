@@ -42,10 +42,26 @@ export function initializeGameState(contractAddress, userAddress) {
     return gameState;
 }
 
+class GamePlayer {
+    constructor(playerAddress, playerNickname) {
+        this.playerAddress = playerAddress;
+        this.playerNickname = playerNickname;
+    }
+}
+
 class GameState {
     constructor(contractAddress, userAddress) {
         this.contractAddress = contractAddress;
         this.userAddress = userAddress;
+    }
+
+    addPlayer(playerAddress, playerNickname) {
+        const player = new GamePlayer(playerAddress, playerNickname);
+        if(!this.players) {
+            this.players = [player];
+        } else {
+            this.players.push(player);
+        }
     }
 
     // getContractAddress gets the address of the contract instance of the game

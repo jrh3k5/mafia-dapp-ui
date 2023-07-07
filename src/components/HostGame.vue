@@ -66,7 +66,7 @@ export default {
     
     <p />
 
-    <button type="submit" @click="this.resumeGame()">Join Game</button>
+    <button type="submit" @click="this.resumeGame()">Resume Game</button>
     <p />
     <button type="submit" @click="this.cancel()">Cancel</button>
   </div>
