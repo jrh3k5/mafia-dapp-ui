@@ -47,7 +47,8 @@ export default {
       gameState.setIsHosting(true);
       gameState.setIsPlaying(false);
       gameState.setHostAddress(gameState.getUserAddress());
-      this.$router.push('/game/join');
+      gameState.setHasJoined(true);
+      this.$router.push('/game/play');
     }
   },
 

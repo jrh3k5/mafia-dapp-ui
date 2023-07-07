@@ -71,15 +71,14 @@ class MafiaContract {
     })
   }
 
-  // getPlayerNicknames returns a Promise that resolves to a mapping of wallet addresses to nicknames
+  // getPlayerNicknames returns a Promise that resolves to a Map of wallet addresses to nicknames
   getPlayerNicknames(hostAddress) {
     return new Promise((resolve, reject) => {
       this.contract.getPlayerList(hostAddress).then(items => {
-        console.log("items", items);
-        const map = {};
+        const map = new Map();
         for(let i = 0; i < items.length; i++) {
           const item = items[i];
-          map[item[0]] = item[1];
+          map.set(item[0], item[1]);
         }
         resolve(map);
       }).catch(reject);
@@ -106,13 +105,15 @@ class MafiaContract {
     });
   }
 
-  joinGame(hostAddress, playerAddress) {
+  // joinGame returns a Promise that either resolves on a successful game join or rejects with the caught errors.
+  // This can return GameStarted if the game has already been started.
+  joinGame(hostAddress, playerNickname) {
     return new Promise((resolve, reject) => {
-      this.contract.on(this.contract.filters.GameJoined(hostAddress, playerAddress), (h, p, e) => {
+      this.contract.on(this.contract.filters.GameJoined(hostAddress, this.signerAddress), (h, p, e) => {
         resolve();
         e.removeListener();
       }).then(() => {
-        this.contract.joinGame(hostAddress, playerAddress).then(tx => {
+        this.contract.joinGame(hostAddress, playerNickname).then(tx => {
           tx.wait().catch(reject);
         }).catch(err => {
           if (("" + err).includes("a game cannot be joined while in progress")) {
@@ -125,8 +126,8 @@ class MafiaContract {
     });
   }
 
-  // startGame returns a Promise that either resolves on a successful join or rejects with the caught error.
-  // This can return GameStarted if the game has been started.
+  // startGame returns a Promise that either resolves on a successful game start or rejects with the caught error.
+  // This can return GameStarted if the game has already been started.
   startGame(expectedPlayerCount) {
     // TODO: listen for game started event
     return new Promise((resolve, reject) => {
@@ -134,7 +135,13 @@ class MafiaContract {
         tx.wait().then(() => {
           resolve();
         }).catch(reject);
-      }).catch(reject);
+      }).catch(err => {
+        if (("" + err).includes("a game cannot be started while already in progress")) {
+          reject(GameStarted);
+        } else {
+          reject(err);
+        }
+      });
     });
   }
 }

@@ -29,7 +29,6 @@ export default {
             }).catch(err => reportError("Failed to get player's information", err));
 
             contract.getPlayerNicknames(hostAddress).then(playerNicknames => {
-                console.log("playerNicknames", playerNicknames);
                 this.playerNicknames = playerNicknames;
             }).catch(err => reportError("Failed to get player nickname map", err));
         }).catch(reportGetContractError);

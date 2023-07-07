@@ -1,11 +1,12 @@
 <script>
 import { getMafiaContract } from '../js/mafia_contract.js'
 import { requireGameState, resetGameState } from '../js/game_state.js'
-import { reportError, reportGetContractError } from '../js/errors.js'
+import { GameStarted, reportError, reportGetContractError } from '../js/errors.js'
 
 export default {
   data() {
     return {
+      gameAlreadyStarted: false,
       expectedPlayerCount: 3,
     }
   },
@@ -24,8 +25,18 @@ export default {
         contract.startGame(this.expectedPlayerCount).then(() => {
           requireGameState().setIsStarted(true);
           this.$router.push('/game/play');
-        }).catch(err => reportError("Failed to start game", err));
+        }).catch(err => {
+          if (err === GameStarted) {
+            this.gameAlreadyStarted = true;
+          } else {
+            reportError("Failed to start game", err);
+          }
+        });
       }).catch(reportGetContractError);
+    },
+    resumeGame: function() {
+      requireGameState().setIsStarted(true);
+      this.$router.push('/game/play');
     }
   },
 
@@ -39,13 +50,24 @@ export default {
 </script>
 
 <template>
-  You are hosting a game! When everyone has joined, enter the number of users you are expecting and click 'Start Game':
+  <div v-if="!this.gameAlreadyStarted">
+    You are hosting a game! When everyone has joined, enter the number of users you are expecting and click 'Start Game':
 
-  <p />
+    <p />
 
-  <input v-model="expectedPlayerCount" />
-  <br />
-  <button type="submit" @click="this.startGame()">Start Game</button>
-  <p />
-  <button type="submit" @click="this.cancelGame()">Cancel Game</button>
+    <input v-model="expectedPlayerCount" />
+    <br />
+    <button type="submit" @click="this.startGame()">Start Game</button>
+    <p />
+    <button type="submit" @click="this.cancelGame()">Cancel Game</button>
+  </div>
+  <div v-if="this.gameAlreadyStarted">
+    You are already hosting a running game; do you wish to resume it?
+    
+    <p />
+
+    <button type="submit" @click="this.resumeGame()">Join Game</button>
+    <p />
+    <button type="submit" @click="this.cancel()">Cancel</button>
+  </div>
 </template>
