@@ -10,6 +10,7 @@ export default {
         return {
             isMafia: false,
             isCivilian: false,
+            playerNicknames: null,
         }
     },
 
@@ -20,12 +21,17 @@ export default {
             this.$router.push('/landing');
             return;
         }
-        
+
         getMafiaContract().then(contract => {
             contract.getPlayerRole(hostAddress).then(playerRole => {
                 this.isMafia = playerRole === PlayerRole.PlayerRoleMafia;
                 this.isCivilian = playerRole === PlayerRole.PlayerRoleCivilian;
             }).catch(err => reportError("Failed to get player's information", err));
+
+            contract.getPlayerNicknames(hostAddress).then(playerNicknames => {
+                console.log("playerNicknames", playerNicknames);
+                this.playerNicknames = playerNicknames;
+            }).catch(err => reportError("Failed to get player nickname map", err));
         }).catch(reportGetContractError);
     }
 }
@@ -37,5 +43,11 @@ export default {
     </div>
     <div v-if="this.isCivilian">
         You are a CIVILIAN.
+    </div>
+
+    <div v-if="this.playerNicknames">
+        <div v-for="[walletAddress, playerNickname] in this.playerNicknames">
+            {{ walletAddress }} => {{ playerNickname }}
+        </div> 
     </div>
 </template>

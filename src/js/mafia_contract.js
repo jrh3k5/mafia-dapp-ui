@@ -71,6 +71,21 @@ class MafiaContract {
     })
   }
 
+  // getPlayerNicknames returns a Promise that resolves to a mapping of wallet addresses to nicknames
+  getPlayerNicknames(hostAddress) {
+    return new Promise((resolve, reject) => {
+      this.contract.getPlayerList(hostAddress).then(items => {
+        console.log("items", items);
+        const map = {};
+        for(let i = 0; i < items.length; i++) {
+          const item = items[i];
+          map[item[0]] = item[1];
+        }
+        resolve(map);
+      }).catch(reject);
+    })
+  }
+
   // initializeGame returns a Promise to begin a game
   initializeGame() {
     return new Promise((resolve, reject) => {
@@ -118,6 +133,7 @@ const mafiaABI = [
   // functions
   "function cancelGame()",
   "function initializeGame()",
+  "function getPlayerList(address hostAddress) view returns(tuple(address walletAddress, string nickname)[])",
   "function getSelfPlayerInfo(address hostAddress) view returns(tuple(address walletAddress, string nickname, bool dead, bool convicted, uint playerRole))",
   "function joinGame(address hostAddress, string playerNickName)",
   "function startGame(uint expectedPlayerCount)",
