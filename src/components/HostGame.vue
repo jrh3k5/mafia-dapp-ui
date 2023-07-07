@@ -19,10 +19,10 @@ export default {
     },
     startGame: function() {
       getMafiaContract().startGame(this.expectedPlayerCount).then(() => {
-        // TODO: automatically join the game, then 
+        this.$router.push('/game/play');
       }).catch(err => reportError("Failed to start game", err));
     }
-  },
+  }
 }
 </script>
 

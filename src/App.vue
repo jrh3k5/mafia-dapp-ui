@@ -18,14 +18,14 @@ export default {
   mounted() {
     ethereum.request({ method: 'eth_requestAccounts' }).then(accounts => {
       const provider = new ethers.BrowserProvider(ethereum);
-      const walletAddress = accounts[0];
+      const walletAddress = window.ethereum.selectedAddress;
       provider.getSigner(walletAddress).then(signer => {
         initializeGameState(walletAddress);
 
         // TODO: read selected network and choose the correct contract address
         initializeMafiaContract(Hardhat.ContractAddress, signer);
         this.walletConnected = true;
-        this.$router.push('/game/host');
+        this.$router.push('/landing');
       }).catch(err => reportError("Failed to get signer", err));
     }).catch(err => reportError("Failed to get wallet address; please try again", err));
   },
@@ -36,9 +36,5 @@ export default {
 </script>
 
 <template>
-  <!-- <Landing :game-state="this.gameState" v-if="this.walletConnected" />
-  <div v-if="!this.walletConnected">
-    You must connect a wallet to this site in order to play Mafia.
-  </div> -->
   <router-view></router-view>
 </template>

@@ -28,6 +28,23 @@ class MafiaContract {
     return this.contract.cancelGame();
   }
 
+  // getPlayerRole gets the player's role in a game hosted by the given host address.
+  getPlayerRole(hostAddress) {
+    return new Promise((resolve, reject) => {
+      console.log("getting self info for game by ", hostAddress);
+      // TODO: call, don't send transaction, as this is a view, not a mutation of contract state
+      this.contract.getSelfPlayerInfo(hostAddress).then(txResult => {
+        console.log("txResult", txResult);
+        console.log("txResult[0]", txResult[0]);
+        txResult.wait().then(txReceipt => {
+          console.log("txReceipt", txReceipt);
+          console.log("txReceipt[0]", txReceipt[0]);
+          resolve();
+        }).catch(reject);
+      }).catch(reject);
+    })
+  }
+
   // initializeGame returns a Promise to begin a game
   initializeGame() {
     return new Promise((resolve, reject) => {
@@ -75,6 +92,7 @@ const mafiaABI = [
   // functions
   "function cancelGame() public",
   "function initializeGame() public",
+  "function getSelfPlayerInfo(address hostAddress) public view returns(tuple(address walletAddress, string nickname, bool dead, bool convicted, uint playerRole))",
   "function joinGame(address hostAddress, string playerNickName)",
   "function startGame(uint expectedPlayerCount) public",
   // events

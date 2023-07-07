@@ -5,6 +5,7 @@ import App from './App.vue'
 import HostGame from './components/HostGame.vue'
 import JoinGame from './components/JoinGame.vue'
 import Landing from './components/Landing.vue'
+import PlayCard from './components/PlayCard.vue'
 import PlayerWaitingRoom from './components/PlayerWaitingRoom.vue'
 
 const router = createRouter({
@@ -13,7 +14,8 @@ const router = createRouter({
         { path: '/landing', component: Landing },
         { path: '/game/host', component: HostGame },
         { path: '/game/join', component: JoinGame },
-        { path: '/game/join/wait', component: PlayerWaitingRoom },
+        { path: '/game/join/waiting', component: PlayerWaitingRoom },
+        { path: '/game/play', component: PlayCard },
     ]
 });
 

@@ -1,5 +1,13 @@
 <script>
 
+export default {
+    methods: {
+        startPlaying: function() {
+            this.$router.push('/game/play');
+        }
+    }
+}
+
 </script>
 
 <template>
@@ -8,5 +16,5 @@
     <p />
 
     <!-- TODO: implement this actually taking the user somewhere -->
-    <button type="submit">Start Playing</button>
+    <button type="submit" @click="startPlaying">Start Playing</button>
 </template>

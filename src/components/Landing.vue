@@ -12,31 +12,32 @@ export default {
 
   methods: {
     cancelGame: function() {
-      getMafiaContract().cancelGame(() => {
+      getMafiaContract().cancelGame().then(() => {
         this.gameAlreadyInitialized = false;
         resetGameState();
       }).catch(err => reportError("Failed to cancel existing game", err));
     },
     hostGame: function() {
-        getMafiaContract().initializeGame().then(() => {
-          const gameState = getGameState();
-          gameState.setIsHosting(true);
-          gameState.setHostAddress(gameState.getUserAddress());
-          this.$router.push('/game/join');
-        }).catch(err => {
-          if (err === GameAlreadyInitialized) {
-            this.gameAlreadyInitialized = true;
-          } else {
-            reportError("Failed to initialize the game", err)
-          }
-        });
+      console.log("initializing game");
+      getMafiaContract().initializeGame().then(() => {
+        const gameState = getGameState();
+        gameState.setIsHosting(true);
+        gameState.setHostAddress(gameState.getUserAddress());
+        this.$router.push('/game/join');
+      }).catch(err => {
+        if (err === GameAlreadyInitialized) {
+          this.gameAlreadyInitialized = true;
+        } else {
+          reportError("Failed to initialize the game", err)
+        }
+      });
     },
     joinGame: function() {
       const gameState = getGameState();
       gameState.setIsHosting(false);
       this.$router.push('/game/join');
     }
-  }
+  },
 }
 </script>
 

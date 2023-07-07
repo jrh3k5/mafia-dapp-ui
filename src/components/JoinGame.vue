@@ -21,6 +21,8 @@ export default {
                 .finally(() => {
                     this.$router.push('/landing');
                 })
+            } else {
+                this.$router.push('/landing');
             }
         },
         joinGame: function() {
@@ -30,7 +32,7 @@ export default {
                 if (gameState.isHosting()) {
                     this.$router.push('/game/host');
                 } else {
-                    // TODO: take the user to the player interstitial page
+                    this.$router.push('/game/join/waiting');
                 }
             }).catch(err => reportError("Failed to join game", err));
         }
