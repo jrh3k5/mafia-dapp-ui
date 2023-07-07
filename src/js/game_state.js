@@ -13,6 +13,7 @@ export function resetGameState() {
     }
 }
 
+// getGameState gets, if available, the game state. This can return null if there is no available game state.
 export function getGameState() {
     if (gameState) {
         return gameState;
@@ -22,6 +23,14 @@ export function getGameState() {
     if (newState.hydrateFromStorage()) {
         gameState = newState;
         return newState;
+    }
+}
+
+// requireGameState tries to retrieve the game state and, if it cannot, it errors.
+export function requireGameState() {
+    const gottenState = getGameState();
+    if (gottenState) {
+        return gottenState;
     }
 
     throw "game state not initialized";
@@ -63,8 +72,14 @@ class GameState {
         return true;
     }
 
+    // isHosting returns true if the user has selected to host a game
     isHosting() {
-        return this.hosting;
+        return !!this.hosting;
+    }
+
+    // isPlaying is the counterpart to isHosting, indicating that a user has at least attempted to join a game
+    isPlaying() {
+        return !!this.playing;
     }
 
     setHostAddress(hostAddress) {
@@ -74,6 +89,11 @@ class GameState {
 
     setIsHosting(hosting) {
         this.hosting = hosting;
+        this.toStorage();
+    }
+
+    setIsPlaying(playing) {
+        this.playing = playing;
         this.toStorage();
     }
 
@@ -87,6 +107,7 @@ class GameState {
             hostAddress: this.hostAddress,
             hosting: this.hosting,
             playerAddress: this.playerAddress,
+            playing: this.playing,
             userAddress: this.userAddress,
         }
 

@@ -1,6 +1,6 @@
 <script>
 import { getMafiaContract } from '../js/mafia_contract.js'
-import { getGameState, resetGameState } from '../js/game_state.js'
+import { requireGameState, resetGameState } from '../js/game_state.js'
 import { reportError } from '../js/errors.js'
 
 export default {
@@ -22,11 +22,14 @@ export default {
                     this.$router.push('/landing');
                 })
             } else {
+                // TODO: remove
+                console.log("canceling");
+                resetGameState();
                 this.$router.push('/landing');
             }
         },
         joinGame: function() {
-            const gameState = getGameState();
+            const gameState = requireGameState();
             const playerAddress = gameState.getUserAddress();
             getMafiaContract().joinGame(this.hostAddress, playerAddress).then(() => {
                 if (gameState.isHosting()) {
@@ -39,7 +42,7 @@ export default {
     },
 
     mounted() {
-        const gameState = getGameState();
+        const gameState = requireGameState();
         this.userIsHost = gameState.isHosting();
         if (this.userIsHost) {
             this.hostAddress = gameState.getUserAddress();

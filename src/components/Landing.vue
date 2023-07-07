@@ -1,5 +1,5 @@
 <script>
-import { getGameState, resetGameState } from '../js/game.js'
+import { getGameState, requireGameState, resetGameState } from '../js/game.js'
 import { getMafiaContract } from '../js/mafia_contract.js'
 import { GameAlreadyInitialized, reportError } from '../js/errors.js'
 
@@ -18,10 +18,10 @@ export default {
       }).catch(err => reportError("Failed to cancel existing game", err));
     },
     hostGame: function() {
-      console.log("initializing game");
       getMafiaContract().initializeGame().then(() => {
-        const gameState = getGameState();
+        const gameState = requireGameState();
         gameState.setIsHosting(true);
+        gameState.setIsPlaying(false);
         gameState.setHostAddress(gameState.getUserAddress());
         this.$router.push('/game/join');
       }).catch(err => {
@@ -33,11 +33,25 @@ export default {
       });
     },
     joinGame: function() {
-      const gameState = getGameState();
+      const gameState = requireGameState();
       gameState.setIsHosting(false);
+      gameState.setIsPlaying(true);
       this.$router.push('/game/join');
     }
   },
+
+  mounted() {
+    const gameState = getGameState()
+    if (gameState) {
+      if (gameState.isHosting()) {
+        // go ahead and automatically take the user to the hosting page
+        this.$router.push('/game/host');
+      } else if (gameState.isPlaying()) {
+        // if the user is playing, then they are trying to join a game
+        this.$router.push('/game/join');
+      }
+    }
+  }
 }
 </script>
 
