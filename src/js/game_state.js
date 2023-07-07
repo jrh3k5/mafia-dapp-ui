@@ -9,7 +9,7 @@ let gameState = null;
 export function resetGameState() {
     localStorage.removeItem("game-state");
     if(gameState) {
-        gameState = initializeGameState(gameeState.getContractAddress(), gameState.getUserAddress());
+        gameState = initializeGameState(gameState.getContractAddress(), gameState.getUserAddress());
     }
 }
 
