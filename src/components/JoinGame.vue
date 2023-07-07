@@ -33,6 +33,7 @@ export default {
             const playerAddress = gameState.getUserAddress();
             getMafiaContract().then(contract => {
                 contract.joinGame(this.hostAddress, playerAddress).then(() => {
+                    requireGameState().setHasJoined(true);
                     if (gameState.isHosting()) {
                         this.$router.push('/game/host');
                     } else {
@@ -48,6 +49,15 @@ export default {
         this.userIsHost = gameState.isHosting();
         if (this.userIsHost) {
             this.hostAddress = gameState.getUserAddress();
+        }
+
+        // if they've already joined a game, then skip this step
+        if (gameState.hasJoined()) {
+            if (gameState.isHosting()) {
+                this.$router.push('/game/host');
+            } else {
+                this.$router.push('/game/join/waiting');
+            }
         }
     }
 }

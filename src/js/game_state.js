@@ -85,6 +85,12 @@ class GameState {
         return true;
     }
 
+    // hasJoined returns true if the user has joined a game and is at least waiting for
+    // the game start.
+    hasJoined() {
+        return !!this.joined;
+    }
+
     // isHosting returns true if the user has selected to host a game
     isHosting() {
         return !!this.hosting;
@@ -98,6 +104,10 @@ class GameState {
     // isStarted returns true if the game has started
     isStarted() {
         return !!this.started;
+    }
+
+    setHasJoined(joined) {
+        this.joined = joined;
     }
 
     setHostAddress(hostAddress) {
@@ -130,6 +140,7 @@ class GameState {
             contractAddress: this.contractAddress,
             hostAddress: this.hostAddress,
             hosting: this.hosting,
+            joined: this.joined,
             playerAddress: this.playerAddress,
             playing: this.playing,
             started: this.started,

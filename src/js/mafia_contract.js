@@ -2,6 +2,7 @@ import { Contract } from 'ethers'
 import { GameAlreadyInitialized } from './errors.js'
 import { getGameState } from './game_state.js';
 import * as PlayerRole from './player_role.js'
+import { ethers } from 'ethers'
 
 let mafiaContract;
 
@@ -24,7 +25,7 @@ export function getMafiaContract() {
     const userAddress = gameState.getUserAddress();
     const provider = new ethers.BrowserProvider(ethereum);
     provider.getSigner(userAddress).then(signer => {
-      const mafiaContract = initializeMafiaContract(gameState.getContractAddress(), userAddress);
+      const mafiaContract = initializeMafiaContract(gameState.getContractAddress(), signer);
       resolve(mafiaContract);
     }).catch(reject);
   })
