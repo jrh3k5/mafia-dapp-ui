@@ -82,6 +82,11 @@ class GameState {
         return !!this.playing;
     }
 
+    // isStarted returns true if the game has started
+    isStarted() {
+        return !!this.started;
+    }
+
     setHostAddress(hostAddress) {
         this.hostAddress = hostAddress;
         this.toStorage();
@@ -97,6 +102,11 @@ class GameState {
         this.toStorage();
     }
 
+    setIsStarted(started) {
+        this.started = started;
+        this.toStorage();
+    }
+
     setPlayerAddress(playerAddress) {
         this.playerAddress = playerAddress;
         this.toStorage();
@@ -108,6 +118,7 @@ class GameState {
             hosting: this.hosting,
             playerAddress: this.playerAddress,
             playing: this.playing,
+            started: this.started,
             userAddress: this.userAddress,
         }
 

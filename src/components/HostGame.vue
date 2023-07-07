@@ -1,6 +1,6 @@
 <script>
 import { getMafiaContract } from '../js/mafia_contract.js'
-import { resetGameState } from '../js/game_state.js'
+import { requireGameState, resetGameState } from '../js/game_state.js'
 import { reportError } from '../js/errors.js'
 
 export default {
@@ -19,8 +19,16 @@ export default {
     },
     startGame: function() {
       getMafiaContract().startGame(this.expectedPlayerCount).then(() => {
+        requireGameState().setStarted(true);
         this.$router.push('/game/play');
       }).catch(err => reportError("Failed to start game", err));
+    }
+  },
+
+  mounted() {
+    if (requireGameState().isStarted()) {
+      // if the game has already been started, then go ahead and take the user to the play card
+      this.$router.push('/game/play');
     }
   }
 }
