@@ -1,5 +1,5 @@
 import { Contract } from 'ethers'
-import { GameAlreadyInitialized } from './errors.js'
+import { GameAlreadyInitialized, GameStarted } from './errors.js'
 import { getGameState } from './game_state.js';
 import * as PlayerRole from './player_role.js'
 import { ethers } from 'ethers'
@@ -98,6 +98,8 @@ class MafiaContract {
         }).catch(err => {
           if (("" + err).includes("a game cannot be initialized while you are hosting another")) {
             reject(GameAlreadyInitialized)
+          } else {
+            reject(err);
           }
         });
       }).catch(reject);
@@ -112,16 +114,24 @@ class MafiaContract {
       }).then(() => {
         this.contract.joinGame(hostAddress, playerAddress).then(tx => {
           tx.wait().catch(reject);
-        }).catch(reject);
+        }).catch(err => {
+          if (("" + err).includes("a game cannot be joined while in progress")) {
+            reject(GameStarted);
+          } else {
+            reject(err);
+          }
+        });
       });
     });
   }
 
+  // startGame returns a Promise that either resolves on a successful join or rejects with the caught error.
+  // This can return GameStarted if the game has been started.
   startGame(expectedPlayerCount) {
+    // TODO: listen for game started event
     return new Promise((resolve, reject) => {
       this.contract.startGame(expectedPlayerCount).then(tx => {
         tx.wait().then(() => {
-          // TODO: listen for game started event
           resolve();
         }).catch(reject);
       }).catch(reject);
