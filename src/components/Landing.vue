@@ -16,6 +16,7 @@ export default {
         contract.cancelGame().then(() => {
           this.gameAlreadyInitialized = false;
           resetGameState();
+          this.$router.push('/landing');
         }).catch(err => reportError("Failed to cancel existing game", err));
       }).catch(reportGetContractError);
     },

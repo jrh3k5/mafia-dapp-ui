@@ -1,3 +1,4 @@
+// GamePlayer describes a player in a game
 export class GamePlayer {
     constructor(playerAddress, playerNickname) {
         this.playerAddress = playerAddress;
