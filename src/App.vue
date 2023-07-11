@@ -1,5 +1,5 @@
 <script>
-import { initializeGameState } from './js/game.js'
+import { initializeGameState } from './js/game_state.js'
 import { Hardhat } from './js/networks.js'
 import { initializeMafiaContract } from './js/mafia_contract.js'
 import { reportError } from './js/errors.js'

@@ -3,6 +3,8 @@ import { GameAlreadyInitialized, GameStarted } from './errors.js'
 import { getGameState } from './game_state.js';
 import * as PlayerRole from './player_role.js'
 import { ethers } from 'ethers'
+import * as PhaseOutcome from './phase_outcome.js'
+import * as TimeOfDay from './time_of_day.js'
 
 let mafiaContract;
 
@@ -61,6 +63,15 @@ class MafiaContract {
     // Otherwise, funky things happen with the game state.
     return new Promise((resolve, reject) => {
       this.contract.cancelGame().then(resolve).catch(reject);
+    })
+  }
+
+  // executePhase executes the current phase, tallying votes and applying them
+  executePhase() {
+    return new Promise((resolve, reject) => {
+      this.contract.executePhase().then(txResult => {
+        txResult.wait().then(resolve).catch(reject);
+      }).catch(reject);
     })
   }
 
@@ -154,12 +165,68 @@ class MafiaContract {
       });
     });
   }
+
+  // waitForPhaseExecution waits for the emission of an event indicating that a phase
+  // has been executed for a game hosted by the given address. When the returned promise resolves, it will return:
+  // - an enum of the outcome of the phase execution
+  // - an enum for the time of day that was executed
+  // - an array of the wallet addresses of players who were killed (if any)
+  // - an array of the wallet addresses of players who were convicted as Mafia (if any)
+  waitForPhaseExecution(hostAddress) {
+    return new Promise((resolve, reject) => {
+      this.contract.on(this.contract.filters.GamePhaseExecuted(hostAddress), (_, phaseOutcomeInt, timeOfDayInt, killed, convicted, e) => {
+        e.removeListener();
+
+        let phaseOutcome;
+        switch (phaseOutcomeInt) {
+          case 0n:
+            phaseOutcome = PhaseOutcome.PhaseOutcomeContinuation;
+            break;
+          case 1n:
+            phaseOutcome = PhaseOutcome.PhaseOutcomeCivilianVictory;
+            break;
+          case 2n:
+            phaseOutcome = PhaseOutcome.PhaseOutcomeMafiaVictory;
+            break;
+          default:
+            reject(`unexpected int phase outcome value while listening for phase execution: ${phaseOutcomeInt}`);
+            return;
+        }
+
+        let timeOfDay;
+        switch (timeOfDayInt) {
+          case 0n:
+            timeOfDay = TimeOfDay.TimeOfDayDay;
+            break;
+          case 1n:
+            timeOfDay = TimeOfDay.TimeOfDayNight;
+            break;
+          default:
+            reject(`unexpected int time of day alue while listening for phase execution: ${timeOfDayInt}`);
+            return;
+        }
+
+        resolve(phaseOutcome, timeOfDay, killed, convicted);
+      }).catch(reject);
+    })
+  }
+
+  // waitForGameStart waits for a game started by the given host address
+  waitForGameStart(hostAddress) {
+    return new Promise((resolve, reject) => {
+      this.contract.on(this.contract.filters.GameStarted(hostAddress), (_, e) => {
+        resolve();
+        e.removeListener();
+      }).catch(reject);
+    })
+  }
 }
 
 const mafiaABI = [
   // functions
   "function accuseAsMafia(address hostAddress, address accused)",
   "function cancelGame()",
+  "function executePhase()",
   "function initializeGame()",
   "function getPlayerList(address hostAddress) view returns(tuple(address walletAddress, string nickname)[])",
   "function getSelfPlayerInfo(address hostAddress) view returns(tuple(address walletAddress, string nickname, bool dead, bool convicted, uint playerRole))",
@@ -169,4 +236,5 @@ const mafiaABI = [
   "event GameInitialized(address indexed hostAddress)",
   "event GameJoined(address indexed hostAddress, address indexed playerAddress)",
   "event GameStarted(address indexed hostAddress)",
+  "event GamePhaseExecuted(addressed indexed hostAddress, uint phaseOutcome, uint timeOfDay, address[] playersKilled, address[] playersConvicted)",
 ];

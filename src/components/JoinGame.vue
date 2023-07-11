@@ -10,6 +10,7 @@ export default {
             hostAddress: "",
             userNickname: "",
             userIsHost: false,
+            waitingForStart: false,
         };
     },
 
@@ -36,7 +37,12 @@ export default {
                     if (gameState.isHosting()) {
                         this.$router.push('/game/host');
                     } else {
-                        this.$router.push('/game/join/waiting');
+                        // tell the user that they're waiting for the host to begin the game
+                        this.waitingForStart = true;
+
+                        contract.waitForGameStart().then(() => {
+                            this.$router.push('/game/play');
+                        }).catch(err => reportError("Failed to start waiting for game to start", err))
                     }
                 }).catch(err => {
                     if (err === GameStarted) {
@@ -68,11 +74,8 @@ export default {
 
         // if they've already joined a game, then skip this step
         if (gameState.hasJoined()) {
-            if (gameState.isHosting()) {
-                this.$router.push('/game/host');
-            } else {
-                this.$router.push('/game/join/waiting');
-            }
+            // TODO: handle when the game has not yet been started
+            this.$router.push('/game/play');
         }
     }
 }
@@ -81,21 +84,26 @@ export default {
 
 <template>
     <div v-if="!this.gameAlreadyStarted">
-        Host address:
-        <br />
-        <input v-model="hostAddress" v-bind:readonly="this.userIsHost" />
+        <div v-if="!this.waitingForStart">
+            Host address:
+            <br />
+            <input v-model="hostAddress" v-bind:readonly="this.userIsHost" />
 
-        <p />
+            <p />
 
-        Nickname:
-        <br />
-        <input v-model="userNickname" />
+            Nickname:
+            <br />
+            <input v-model="userNickname" />
 
-        <p />
+            <p />
 
-        <button type="submit" @click="this.joinGame()">Join Game</button>
-        <p />
-        <button type="submit" @click="this.cancel()">Cancel</button>
+            <button type="submit" @click="this.joinGame()">Join Game</button>
+            <p />
+            <button type="submit" @click="this.cancel()">Cancel</button>
+        </div>
+        <div v-if="this.waitingForStart">
+            You are joined to the game. When the game has started, you will be automatically taken to your play card.
+        </div>
     </div>
     <div v-if="this.gameAlreadyStarted">
         You are already participating in a game; do you wish to resume it?

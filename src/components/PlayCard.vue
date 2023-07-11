@@ -16,6 +16,7 @@ export default {
             isNight: false,
             mafiaAccusation: null,
             players: null,
+            summarizingPhaseExecution: false,
             waitingForConviction: false,
             waitingForMurder: false,
         }
@@ -27,6 +28,10 @@ export default {
             getMafiaContract().then(contract => {
                 contract.accuseAsMafia(gameState.getHostAddress(), this.mafiaAccusation).then(() => {
                     this.waitingForConviction = true;
+
+                    contract.waitForPhaseExecution().then((phaseOutcome, timeOfDay, playersKilled, playersConvicted) => {
+
+                    }).catch(err => reportError("Failed to wait for phase execution", err));
                 }).catch(err => reportError("Failed to submit accusation of player being Mafia", err));
             }).catch(reportGetContractError);
         },

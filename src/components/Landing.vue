@@ -1,5 +1,5 @@
 <script>
-import { getGameState, requireGameState, resetGameState } from '../js/game.js'
+import { getGameState, requireGameState, resetGameState } from '../js/game_state.js'
 import { getMafiaContract } from '../js/mafia_contract.js'
 import { GameAlreadyInitialized, reportError, reportGetContractError } from '../js/errors.js'
 
