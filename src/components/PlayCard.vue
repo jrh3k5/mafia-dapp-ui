@@ -5,6 +5,8 @@ import { reportError, reportGetContractError } from '../js/errors.js'
 import * as PlayerRole from '../js/player_role.js'
 import { GamePlayer } from '../js/player.js'
 import { resetGameState } from '../js/game_state.js'
+import * as PhaseOutcome from '../js/phase_outcome.js'
+import { TimeOfDayDay } from '../js/time_of_day'
 
 export default {
     data() {
@@ -29,10 +31,14 @@ export default {
                 contract.accuseAsMafia(gameState.getHostAddress(), this.mafiaAccusation).then(() => {
                     this.waitingForConviction = true;
 
-                    contract.waitForPhaseExecution().then((phaseOutcome, timeOfDay, playersKilled, playersConvicted) => {
-
-                    }).catch(err => reportError("Failed to wait for phase execution", err));
+                    contract.waitForPhaseExecution().then(this.handlePhaseExecution).catch(err => reportError("Failed to wait for phase execution", err));
                 }).catch(err => reportError("Failed to submit accusation of player being Mafia", err));
+            }).catch(reportGetContractError);
+        },
+        executePhase: function() {
+            getMafiaContract().then(contract => {
+                contract.waitForPhaseExecution().then(this.handlePhaseExecution).catch(err => reportError("Failed to wait for phase execution", err));
+                contract.executePhase().catch(err => reportError("Failed to execute game phase", err));
             }).catch(reportGetContractError);
         },
         getOtherPlayers: function() {
@@ -41,9 +47,56 @@ export default {
         getVotablePlayers: function() {
             return this.getOtherPlayers().filter(p => !p.dead && !p.convicted);
         },
-        tallyAccusations: function() {
+        handlePhaseExecution: function(phaseOutcome, timeOfDay, playersKilled, playersConvicted) {
+            switch (phaseOutcome) {
+                case PhaseOutcome.PhaseOutcomeCivilianVictory:
+                    // TODO: take the user to a page letting them know that the civilians won
+                    alert("The civilians won!");
+                    return;
+                case PhaseOutcome.PhaseOutcomeMafiaVictory:
+                    // TODO: take the user to a page letting them know that the Mafia won
+                    alert("The Mafia won!");
+                    return;
+            }
 
-        }
+            if (timeOfDay == TimeOfDay.TimeOfDayDay) {
+                if(playersConvicted) {
+                    playersConvicted.forEach(playerAddress => {
+                        let resolvedName = this.resolveUserNickname(playerAddress)
+                        if (!resolvedName) {
+                            resolvedName = playerAddress;
+                        }
+                        alert(`By a jury of their peers, ${resolvedName} has been convicted of being a member of the Mafia!`);
+                    })
+                } else {
+                    alert("No one player received the majority of votes; no one has been convicted of being a Mafia member");
+                }
+            } else if (timeOfDay == TimeOfDay.TimeOfDayNight) {
+                if(playersKilled) {
+                    playersKilled.forEach(playerAddress => {
+                        let resolvedName = this.resolveUserNickname(playerAddress)
+                        if (!resolvedName) {
+                            resolvedName = playerAddress;
+                        }
+                        alert(`Oh, no! ${resolvedName} has been murdered overnight!`);
+                    })
+                } else {
+                    alert("The Mafia has decided to act benevolently; no one has been murdered overnight.");
+                }
+            }
+        },
+        resolveUserNickname(walletAddress) {
+            if(!this.players) {
+                return null;
+            }
+
+            const match = this.players.filter(p => p.playerAddress.toLowerCase() == walletAddress.toLowerCase())[0]
+            if(!match) {
+                return null;
+            }
+
+            return match.playerNickname;
+        },
     },
 
     mounted() {
@@ -140,7 +193,7 @@ export default {
                     <button type="submit" @click="this.tallyAccusations()">Tally Accusations</button>
                 </div>
                 <div v-if="!this.isHosting">
-                    Let the host know that you have submitted your vote.
+                    Let the host know that you have submitted your vote. When the host tallies the votes, you will be automatically taken to the next phase of the game.
                 </div>
             </div>
         </div>

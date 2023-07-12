@@ -130,9 +130,8 @@ class MafiaContract {
   // This can return GameStarted if the game has already been started.
   joinGame(hostAddress, playerNickname) {
     return new Promise((resolve, reject) => {
-      this.contract.on(this.contract.filters.GameJoined(hostAddress, this.signerAddress), (h, p, e) => {
+      this.contract.once(this.contract.filters.GameJoined(hostAddress, this.signerAddress), () => {
         resolve();
-        e.removeListener();
       }).then(() => {
         this.contract.joinGame(hostAddress, playerNickname).then(tx => {
           tx.wait().catch(reject);
@@ -174,9 +173,7 @@ class MafiaContract {
   // - an array of the wallet addresses of players who were convicted as Mafia (if any)
   waitForPhaseExecution(hostAddress) {
     return new Promise((resolve, reject) => {
-      this.contract.on(this.contract.filters.GamePhaseExecuted(hostAddress), (_, phaseOutcomeInt, timeOfDayInt, killed, convicted, e) => {
-        e.removeListener();
-
+      this.contract.once(this.contract.filters.GamePhaseExecuted(hostAddress), (_, phaseOutcomeInt, timeOfDayInt, killed, convicted) => {
         let phaseOutcome;
         switch (phaseOutcomeInt) {
           case 0n:
@@ -214,10 +211,7 @@ class MafiaContract {
   // waitForGameStart waits for a game started by the given host address
   waitForGameStart(hostAddress) {
     return new Promise((resolve, reject) => {
-      this.contract.on(this.contract.filters.GameStarted(hostAddress), (_, e) => {
-        resolve();
-        e.removeListener();
-      }).catch(reject);
+      this.contract.once(this.contract.filters.GameStarted(hostAddress), resolve).catch(reject);
     })
   }
 }
