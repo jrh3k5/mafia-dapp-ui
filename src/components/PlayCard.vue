@@ -181,7 +181,7 @@ export default {
                 <button type="submit" @click="this.accuse()" :disabled="!this.mafiaAccusation">Accuse Player</button>
             </div>
             <div v-if="this.waitingForConviction">
-                You have submitted an accusation of a player being Mafia. Wait for the other players to finish their submission.
+                You have submitted an accusation of a player being Mafia.
 
                 <div v-if="this.isHosting">
                     <p />
@@ -190,7 +190,7 @@ export default {
 
                     <p />
 
-                    <button type="submit" @click="this.tallyAccusations()">Tally Accusations</button>
+                    <button type="submit" @click="this.executePhase()">Tally Accusations</button>
                 </div>
                 <div v-if="!this.isHosting">
                     Let the host know that you have submitted your vote. When the host tallies the votes, you will be automatically taken to the next phase of the game.

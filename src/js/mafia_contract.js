@@ -230,5 +230,5 @@ const mafiaABI = [
   "event GameInitialized(address indexed hostAddress)",
   "event GameJoined(address indexed hostAddress, address indexed playerAddress)",
   "event GameStarted(address indexed hostAddress)",
-  "event GamePhaseExecuted(addressed indexed hostAddress, uint phaseOutcome, uint timeOfDay, address[] playersKilled, address[] playersConvicted)",
+  "event GamePhaseExecuted(address indexed hostAddress, uint phaseOutcome, uint timeOfDay, address[] playersKilled, address[] playersConvicted)",
 ];
