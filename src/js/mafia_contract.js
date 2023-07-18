@@ -174,10 +174,10 @@ class MafiaContract {
   waitForPhaseExecution(hostAddress) {
     return new Promise((resolve, reject) => {
       this.contract.once(this.contract.filters.GamePhaseExecuted(hostAddress), contractPayload => {
-        phaseOutcomeInt = contractPayload.args[1];
-        timeOfDayInt = contractPayload.args[2];
-        killed = contractPayload.args[3];
-        convicted = contractPayload.args[4];
+        const phaseOutcomeInt = contractPayload.args[1];
+        const timeOfDayInt = contractPayload.args[2];
+        const killed = contractPayload.args[3];
+        const convicted = contractPayload.args[4];
 
         let phaseOutcome;
         switch (phaseOutcomeInt) {
@@ -204,10 +204,10 @@ class MafiaContract {
             timeOfDay = TimeOfDay.TimeOfDayNight;
             break;
           default:
-            reject(`unexpected int time of day alue while listening for phase execution: ${timeOfDayInt}`);
+            reject(`unexpected int time of day value while listening for phase execution: ${timeOfDayInt}`);
             return;
         }
-
+        
         resolve(phaseOutcome, timeOfDay, killed, convicted);
       }).catch(reject);
     })

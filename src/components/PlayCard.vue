@@ -63,9 +63,6 @@ export default {
                     return;
             }
 
-            // TODO: remove
-            console.log("timeOfDay = ", timeOfDay);
-
             if (timeOfDay == TimeOfDay.TimeOfDayDay) {
                 if(playersConvicted) {
                     playersConvicted.forEach(playerAddress => {
