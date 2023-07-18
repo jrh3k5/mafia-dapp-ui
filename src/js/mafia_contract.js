@@ -207,8 +207,8 @@ class MafiaContract {
             reject(`unexpected int time of day value while listening for phase execution: ${timeOfDayInt}`);
             return;
         }
-        
-        resolve(phaseOutcome, timeOfDay, killed, convicted);
+
+        resolve([phaseOutcome, timeOfDay, killed, convicted]);
       }).catch(reject);
     })
   }

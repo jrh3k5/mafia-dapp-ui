@@ -6,7 +6,7 @@ import * as PlayerRole from '../js/player_role.js'
 import { GamePlayer } from '../js/player.js'
 import { resetGameState } from '../js/game_state.js'
 import * as PhaseOutcome from '../js/phase_outcome.js'
-import { TimeOfDayDay } from '../js/time_of_day'
+import * as TimeOfDay from '../js/time_of_day'
 
 export default {
     data() {
@@ -51,17 +51,19 @@ export default {
         getVotablePlayers: function() {
             return this.getOtherPlayers().filter(p => !p.dead && !p.convicted);
         },
-        handlePhaseExecution: function(phaseOutcome, timeOfDay, playersKilled, playersConvicted) {
-            switch (phaseOutcome) {
-                case PhaseOutcome.PhaseOutcomeCivilianVictory:
-                    // TODO: take the user to a page letting them know that the civilians won
-                    alert("The civilians won!");
-                    return;
-                case PhaseOutcome.PhaseOutcomeMafiaVictory:
-                    // TODO: take the user to a page letting them know that the Mafia won
-                    alert("The Mafia won!");
-                    return;
-            }
+        handlePhaseExecution: function(resolutionArgs) {
+            const [phaseOutcome, timeOfDay, playersKilled, playersConvicted] = resolutionArgs;
+            // TODO: restore
+            // switch (phaseOutcome) {
+            //     case PhaseOutcome.PhaseOutcomeCivilianVictory:
+            //         // TODO: take the user to a page letting them know that the civilians won
+            //         alert("The civilians won!");
+            //         return;
+            //     case PhaseOutcome.PhaseOutcomeMafiaVictory:
+            //         // TODO: take the user to a page letting them know that the Mafia won
+            //         alert("The Mafia won!");
+            //         return;
+            // }
 
             if (timeOfDay == TimeOfDay.TimeOfDayDay) {
                 if(playersConvicted) {
@@ -78,6 +80,8 @@ export default {
 
                 this.isDay = false;
                 this.isNight = true;
+
+                // TODO: if player is convicted of Mafia, don't let them play anymore
             } else if (timeOfDay == TimeOfDay.TimeOfDayNight) {
                 if(playersKilled) {
                     playersKilled.forEach(playerAddress => {
@@ -93,6 +97,8 @@ export default {
 
                 this.isNight = false;
                 this.isDay = true;
+
+                // TODO: if player is dead, don't let them play anymore
             }
         },
         resolveUserNickname: function(walletAddress) {
