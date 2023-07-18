@@ -31,13 +31,17 @@ export default {
                 contract.accuseAsMafia(gameState.getHostAddress(), this.mafiaAccusation).then(() => {
                     this.waitingForConviction = true;
 
-                    contract.waitForPhaseExecution().then(this.handlePhaseExecution).catch(err => reportError("Failed to wait for phase execution", err));
+                    contract.waitForPhaseExecution(gameState.getHostAddress()).then(this.handlePhaseExecution).then(() => {
+                        this.mafiaAccusation = null;
+                        this.waitingForConviction = false;
+                    }).catch(err => reportError("Failed to wait for phase execution", err));
                 }).catch(err => reportError("Failed to submit accusation of player being Mafia", err));
             }).catch(reportGetContractError);
         },
         executePhase: function() {
+            const gameState = requireGameState();
             getMafiaContract().then(contract => {
-                contract.waitForPhaseExecution().then(this.handlePhaseExecution).catch(err => reportError("Failed to wait for phase execution", err));
+                contract.waitForPhaseExecution(gameState.getHostAddress()).then(this.handlePhaseExecution).catch(err => reportError("Failed to wait for phase execution", err));
                 contract.executePhase().catch(err => reportError("Failed to execute game phase", err));
             }).catch(reportGetContractError);
         },
@@ -59,6 +63,9 @@ export default {
                     return;
             }
 
+            // TODO: remove
+            console.log("timeOfDay = ", timeOfDay);
+
             if (timeOfDay == TimeOfDay.TimeOfDayDay) {
                 if(playersConvicted) {
                     playersConvicted.forEach(playerAddress => {
@@ -71,6 +78,9 @@ export default {
                 } else {
                     alert("No one player received the majority of votes; no one has been convicted of being a Mafia member");
                 }
+
+                this.isDay = false;
+                this.isNight = true;
             } else if (timeOfDay == TimeOfDay.TimeOfDayNight) {
                 if(playersKilled) {
                     playersKilled.forEach(playerAddress => {
@@ -83,9 +93,12 @@ export default {
                 } else {
                     alert("The Mafia has decided to act benevolently; no one has been murdered overnight.");
                 }
+
+                this.isNight = false;
+                this.isDay = true;
             }
         },
-        resolveUserNickname(walletAddress) {
+        resolveUserNickname: function(walletAddress) {
             if(!this.players) {
                 return null;
             }
@@ -97,6 +110,19 @@ export default {
 
             return match.playerNickname;
         },
+        voteToKill: function() {
+            const gameState = requireGameState();
+            getMafiaContract().then(contract => {
+                contract.accuseAsMafia(gameState.getHostAddress(), this.killVote).then(() => {
+                    this.waitingForMurder = true;
+
+                    contract.waitForPhaseExecution().then(this.handlePhaseExecution).then(() => {
+                        this.killVote = null;
+                        this.waitingForMurder = false;
+                    }).catch(err => reportError("Failed to wait for phase execution", err));
+                }).catch(err => reportError("Failed to submit accusation of player being Mafia", err));
+            }).catch(reportGetContractError);
+        }
     },
 
     mounted() {
@@ -199,6 +225,33 @@ export default {
         </div>
         <div v-if="this.isNight">
             it's night time!
+
+            <div v-if="this.isCivilian">
+                Keep your eyes closed! It's now the Mafia's chance to try and eliminate someone they think is a threat to them - better hope it wasn't you!
+                <p v-if="this.isHosting">
+                    Start a timer for one minute to give the Mafia enough time to coordinate and identify who to kill.
+                </p>
+            </div>
+            <div v-if="this.isMafia">
+                <div v-if="!this.waitingForMurder">
+                    Now's your time to try and eliminate a civilian you think is a threat to you and your fellow Mafia members. Work with your fellow Mafiosos to identify someone you want dead.
+                    <p />
+
+                    <select v-model="this.killVote">
+                        <option disabled value="">Select a player to kill</option>
+                        <option v-for="player in this.getVotablePlayers()" :key="player.playerAddress" :value="player.playerAddress">
+                            {{  player.playerNickname }}
+                        </option>
+                    </select>
+
+                    <p />
+
+                    <button type="submit" @click="this.accuse()" :disabled="!this.mafiaAccusation">Accuse Player</button>
+                </div>
+                <div v-if="this.waitingForMurder">
+                    Your vote to kill a player has been submitted. Wait for the round timer to complete and the host to tally the kill votes.
+                </div>
+            </div>
         </div>
     </div>
 </template>

@@ -3,5 +3,5 @@ export const BaseGoerliTestnet = {
 };
 
 export const Hardhat = {
-    ContractAddress: "0x400BBE6944c50a1908e2dbfA0cA638868C6DA4B8"
+    ContractAddress: "0x24341c16EF96e08F5088d6eFB03CDffEAd38E72b"
 }

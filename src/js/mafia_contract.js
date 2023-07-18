@@ -173,7 +173,12 @@ class MafiaContract {
   // - an array of the wallet addresses of players who were convicted as Mafia (if any)
   waitForPhaseExecution(hostAddress) {
     return new Promise((resolve, reject) => {
-      this.contract.once(this.contract.filters.GamePhaseExecuted(hostAddress), (_, phaseOutcomeInt, timeOfDayInt, killed, convicted) => {
+      this.contract.once(this.contract.filters.GamePhaseExecuted(hostAddress), contractPayload => {
+        phaseOutcomeInt = contractPayload.args[1];
+        timeOfDayInt = contractPayload.args[2];
+        killed = contractPayload.args[3];
+        convicted = contractPayload.args[4];
+
         let phaseOutcome;
         switch (phaseOutcomeInt) {
           case 0n:
