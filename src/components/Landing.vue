@@ -1,5 +1,5 @@
 <script>
-import { getGameState, requireGameState, resetGameState } from '../js/game_state.js'
+import { getGameState, resetGameState } from '../js/game_state.js'
 import { getMafiaService } from '../js/mafia_service.js'
 import { GameAlreadyInitialized, reportError, reportGetContractError } from '../js/errors.js'
 
@@ -23,11 +23,12 @@ export default {
     hostGame: function() {
       getMafiaService().then(mafiaService => {
         mafiaService.initializeGame().then(() => {
-          const gameState = requireGameState();
-          gameState.setIsHosting(true);
-          gameState.setIsPlaying(false);
-          gameState.setHostAddress(gameState.getUserAddress());
-          this.$router.push('/game/join');
+          getGameState().then(gameState => {
+            gameState.setIsHosting(true);
+            gameState.setIsPlaying(false);
+            gameState.setHostAddress(gameState.getUserAddress());
+            this.$router.push('/game/join');
+          }).catch(err => reportError("Failed to get game state on hosting of game", err))
         }).catch(err => {
           if (err === GameAlreadyInitialized) {
             this.gameAlreadyInitialized = true;
@@ -38,18 +39,20 @@ export default {
       }).catch(reportGetContractError);
     },
     joinGame: function() {
-      const gameState = requireGameState();
-      gameState.setIsHosting(false);
-      gameState.setIsPlaying(true);
-      this.$router.push('/game/join');
+      getGameState().then(gameState => {
+        gameState.setIsHosting(false);
+        gameState.setIsPlaying(true);
+        this.$router.push('/game/join');
+      }).catch(err => reportError("Failed to get game state on joining game", err))
     },
     resumeHosting: function() {
-      const gameState = requireGameState();
-      gameState.setIsHosting(true);
-      gameState.setIsPlaying(false);
-      gameState.setHostAddress(gameState.getUserAddress());
-      gameState.setHasJoined(true);
-      this.$router.push('/game/play');
+      getGameState().then(gameState => {
+        gameState.setIsHosting(true);
+        gameState.setIsPlaying(false);
+        gameState.setHostAddress(gameState.getUserAddress());
+        gameState.setHasJoined(true);
+        this.$router.push('/game/play');
+      }).catch(err => reportError("Failed to get game state while resuming game", err))
     }
   },
 

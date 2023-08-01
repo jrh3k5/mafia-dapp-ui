@@ -1,6 +1,6 @@
 <script>
 import { getMafiaService } from '../js/mafia_service.js'
-import { requireGameState } from '../js/game_state.js'
+import { getGameState } from '../js/game_state.js'
 import { reportError, reportGetContractError } from '../js/errors.js'
 import * as PlayerRole from '../js/player_role.js'
 import { GamePlayer } from '../js/player.js'
@@ -26,27 +26,37 @@ export default {
 
     methods: {
         accuse: function() {
-            const gameState = requireGameState();
-            getMafiaService().then(mafiaService => {
-                mafiaService.accuseAsMafia(gameState.getHostAddress(), this.mafiaAccusation).then(() => {
-                    this.waitingForConviction = true;
+            getGameState().then(gameState => {
+                getMafiaService().then(mafiaService => {
+                    mafiaService.accuseAsMafia(gameState.getHostAddress(), this.mafiaAccusation).then(() => {
+                        this.waitingForConviction = true;
 
-                    mafiaService.waitForPhaseExecution(gameState.getHostAddress()).then(this.handlePhaseExecution).then(() => {
-                        this.mafiaAccusation = null;
-                        this.waitingForConviction = false;
-                    }).catch(err => reportError("Failed to wait for phase execution", err));
-                }).catch(err => reportError("Failed to submit accusation of player being Mafia", err));
-            }).catch(reportGetContractError);
+                        mafiaService.waitForPhaseExecution(gameState.getHostAddress()).then(this.handlePhaseExecution).then(() => {
+                            this.mafiaAccusation = null;
+                            this.waitingForConviction = false;
+                        }).catch(err => reportError("Failed to wait for phase execution", err));
+                    }).catch(err => reportError("Failed to submit accusation of player being Mafia", err));
+                }).catch(reportGetContractError);
+            }).catch(err => reportError("Failed to get game state while accusing another player", err))
         },
         executePhase: function() {
-            const gameState = requireGameState();
-            getMafiaService().then(getMafiaService => {
-                mafiaService.waitForPhaseExecution(gameState.getHostAddress()).then(this.handlePhaseExecution).catch(err => reportError("Failed to wait for phase execution", err));
-                mafiaService.executePhase().catch(err => reportError("Failed to execute game phase", err));
-            }).catch(reportGetContractError);
+            getGameState().then(gameState => {
+                getMafiaService().then(getMafiaService => {
+                    mafiaService.waitForPhaseExecution(gameState.getHostAddress()).then(this.handlePhaseExecution).catch(err => reportError("Failed to wait for phase execution", err));
+                    mafiaService.executePhase().catch(err => reportError("Failed to execute game phase", err));
+                }).catch(reportGetContractError);
+            }).catch(err => reportError("Failed to get game state on phase execution", err))
         },
         getOtherPlayers: function() {
-            return this.players.filter(p => p.playerAddress.toLowerCase() != requireGameState().getUserAddress().toLowerCase());
+            const players = this.players;
+            // TODO: verify that this handles promises properly
+            return new Promise((resolve, reject) => {
+                getGameState().then(gameState => {
+                    playerAddress = gameState.getPlayerAddress().toLowerCase();
+                    const matchingPlayers = players.filter(p => p.playerAddress.toLowerCase() != playerAddress);
+                    resolve(matchingPlayers);
+                }).catch(reject);
+            })
         },
         getVotablePlayers: function() {
             return this.getOtherPlayers().filter(p => !p.dead && !p.convicted);
@@ -114,46 +124,48 @@ export default {
             return match.playerNickname;
         },
         voteToKill: function() {
-            const gameState = requireGameState();
-            getMafiaService().then(mafiaService => {
-                mafiaService.accuseAsMafia(gameState.getHostAddress(), this.killVote).then(() => {
-                    this.waitingForMurder = true;
+                getGameState().then(gameState => {
+                getMafiaService().then(mafiaService => {
+                    mafiaService.accuseAsMafia(gameState.getHostAddress(), this.killVote).then(() => {
+                        this.waitingForMurder = true;
 
-                    mafiaService.waitForPhaseExecution().then(this.handlePhaseExecution).then(() => {
-                        this.killVote = null;
-                        this.waitingForMurder = false;
-                    }).catch(err => reportError("Failed to wait for phase execution", err));
-                }).catch(err => reportError("Failed to submit accusation of player being Mafia", err));
-            }).catch(reportGetContractError);
+                        mafiaService.waitForPhaseExecution().then(this.handlePhaseExecution).then(() => {
+                            this.killVote = null;
+                            this.waitingForMurder = false;
+                        }).catch(err => reportError("Failed to wait for phase execution", err));
+                    }).catch(err => reportError("Failed to submit accusation of player being Mafia", err));
+                }).catch(reportGetContractError);
+            }).catch(err => reportError("Failed to get game state while voting to kill", err))
         }
     },
 
     mounted() {
-        const gameState = requireGameState();
-        const hostAddress = gameState.getHostAddress();
-        if (!hostAddress) {
-            reportError("No host address could be retrieved from the game state; you will be taken to the main page now to restart your game", null);
-            resetGameState();
-            this.$router.push('/landing');
-            return;
-        }
+        getGameState().then(gameState => {
+            const hostAddress = gameState.getHostAddress();
+            if (!hostAddress) {
+                reportError("No host address could be retrieved from the game state; you will be taken to the main page now to restart your game", null);
+                resetGameState();
+                this.$router.push('/landing');
+                return;
+            }
 
-        this.isHosting = gameState.isHosting();
+            this.isHosting = gameState.isHosting();
 
-        getMafiaService().then(mafiaService => {
-            mafiaService.getPlayerRole(hostAddress).then(playerRole => {
-                this.isMafia = playerRole === PlayerRole.PlayerRoleMafia;
-                this.isCivilian = playerRole === PlayerRole.PlayerRoleCivilian;
-            }).catch(err => reportError("Failed to get player's information", err));
+            getMafiaService().then(mafiaService => {
+                mafiaService.getPlayerRole(hostAddress).then(playerRole => {
+                    this.isMafia = playerRole === PlayerRole.PlayerRoleMafia;
+                    this.isCivilian = playerRole === PlayerRole.PlayerRoleCivilian;
+                }).catch(err => reportError("Failed to get player's information", err));
 
-            mafiaService.getPlayerNicknames(hostAddress).then(playerNicknames => {
-                this.players = [];
-                playerNicknames.forEach((playerNickname, playerAddress) => {
-                    this.players.push(new GamePlayer(playerAddress, playerNickname));
-                })
-                this.players.sort((a, b) => a.playerNickname.localeCompare(b.playerNickname));
-            }).catch(err => reportError("Failed to get player nickname map", err));
-        }).catch(reportGetContractError);
+                mafiaService.getPlayerNicknames(hostAddress).then(playerNicknames => {
+                    this.players = [];
+                    playerNicknames.forEach((playerNickname, playerAddress) => {
+                        this.players.push(new GamePlayer(playerAddress, playerNickname));
+                    })
+                    this.players.sort((a, b) => a.playerNickname.localeCompare(b.playerNickname));
+                }).catch(err => reportError("Failed to get player nickname map", err));
+            }).catch(reportGetContractError);
+        }).catch(err => reportError("Failed to get game state on initialization", err))
     }
 }
 </script>

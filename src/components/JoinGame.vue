@@ -1,6 +1,6 @@
 <script>
 import { getMafiaService } from '../js/mafia_service.js'
-import { requireGameState, resetGameState } from '../js/game_state.js'
+import { getGameState, resetGameState } from '../js/game_state.js'
 import { GameStarted, reportError, reportGetContractError } from '../js/errors.js'
 
 export default {
@@ -31,19 +31,20 @@ export default {
         joinGame: function() {
             getMafiaService().then(mafiaService => {
                 mafiaService.joinGame(this.hostAddress, this.userNickname).then(() => {
-                    const gameState = requireGameState();
-                    gameState.setHostAddress(this.hostAddress);
-                    gameState.setHasJoined(true);
-                    if (gameState.isHosting()) {
-                        this.$router.push('/game/host');
-                    } else {
-                        // tell the user that they're waiting for the host to begin the game
-                        this.waitingForStart = true;
+                    getGameState().then(gameState => {
+                        gameState.setHostAddress(this.hostAddress);
+                        gameState.setHasJoined(true);
+                        if (gameState.isHosting()) {
+                            this.$router.push('/game/host');
+                        } else {
+                            // tell the user that they're waiting for the host to begin the game
+                            this.waitingForStart = true;
 
-                        mafiaService.waitForGameStart().then(() => {
-                            this.$router.push('/game/play');
-                        }).catch(err => reportError("Failed to start waiting for game to start", err))
-                    }
+                            mafiaService.waitForGameStart().then(() => {
+                                this.$router.push('/game/play');
+                            }).catch(err => reportError("Failed to start waiting for game to start", err))
+                        }
+                    }).catch(err => reportError("Failed to get game state on joining", err))
                 }).catch(err => {
                     if (err === GameStarted) {
                         this.gameAlreadyStarted = true;
@@ -54,29 +55,31 @@ export default {
             }).catch(reportGetContractError)
         },
         resumeGame: function() {
-            const gameState = requireGameState();
-            gameState.setHostAddress(this.hostAddress);
-            gameState.setHasJoined(true);
-            if (gameState.isHosting()) {
-                this.$router.push('/game/play');
-            } else {
-                this.$router.push('/game/play');
-            }
+            getGameState().then(gameState => {
+                gameState.setHostAddress(this.hostAddress);
+                gameState.setHasJoined(true);
+                if (gameState.isHosting()) {
+                    this.$router.push('/game/play');
+                } else {
+                    this.$router.push('/game/play');
+                }
+            }).catch(err => reportError("Failed to get game state while resuming game", err))
         }
     },
 
     mounted() {
-        const gameState = requireGameState();
-        this.userIsHost = gameState.isHosting();
-        if (this.userIsHost) {
-            this.hostAddress = gameState.getUserAddress();
-        }
+        getGameState().then(gameState => {
+            this.userIsHost = gameState.isHosting();
+            if (this.userIsHost) {
+                this.hostAddress = gameState.getUserAddress();
+            }
 
-        // if they've already joined a game, then skip this step
-        if (gameState.hasJoined()) {
-            // TODO: handle when the game has not yet been started
-            this.$router.push('/game/play');
-        }
+            // if they've already joined a game, then skip this step
+            if (gameState.hasJoined()) {
+                // TODO: handle when the game has not yet been started
+                this.$router.push('/game/play');
+            }
+        }).catch(err => reportError("Failed to get game state on initialization", err))
     }
 }
 

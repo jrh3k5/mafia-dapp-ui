@@ -1,8 +1,10 @@
-let gameState = null;
+let gameState;
+let gameStateProvider;
 
 // resetGameState resets the game state to a default state
 // It does not clear out the game state, so required initial values (such as user wallet address) are retained.
 export function resetGameState() {
+    // TODO: move this into game state storage provider
     localStorage.removeItem("game-state");
     if(gameState) {
         gameState = initializeGameState(gameState.getContractAddress(), gameState.getUserAddress());
@@ -15,33 +17,23 @@ export function getGameState() {
         return gameState;
     }
 
-    const newState = new GameState();
-    if (newState.hydrateFromStorage()) {
-        gameState = newState;
-        return newState;
-    }
-}
-
-// requireGameState tries to retrieve the game state and, if it cannot, it errors.
-export function requireGameState() {
-    const gottenState = getGameState();
-    if (gottenState) {
-        return gottenState;
+    if (!gameStateProvider) {
+        throw 'no game state provider set';
     }
 
-    throw "game state not initialized";
-}
-
-export function initializeGameState(contractAddress, userAddress) {
-    const gameState = new GameState(contractAddress, userAddress);
-    gameState.toStorage();
+    gameState = gameStateProvider.getGameState();
     return gameState;
 }
 
-class GameState {
-    constructor(contractAddress, userAddress) {
+export function setGameStateProvider(givenProvider) {
+    gameStateProvider = givenProvider;
+}
+
+export class GameState {
+    constructor(contractAddress, playerAddress, gameStateStorage) {
         this.contractAddress = contractAddress;
-        this.userAddress = userAddress;
+        this.playerAddress = playerAddress;
+        this.gameStateStorage = gameStateStorage;
     }
 
     // getContractAddress gets the address of the contract instance of the game
@@ -59,26 +51,6 @@ class GameState {
 
     getUserAddress() {
         return this.userAddress;
-    }
-
-    // hydrateFromStorage attempts to hydrate this instance from localStorage.
-    // It returns true if storage data was found and this has been hydrated; it returns false, otherwise.
-    hydrateFromStorage() {
-        const storedState = localStorage.getItem("game-state");
-        if (!storedState) {
-            return false;
-        }
-
-        // If the data is missing the bare minimum, don't hydrate
-        const restoredState = JSON.parse(storedState);
-        if (!restoredState.userAddress || !restoredState.contractAddress) {
-            console.warn("Stored game state is missing minimum required fields; game state will not be hydrated from it", storedState);
-            localStorage.removeItem("game-state");
-            return false;
-        }
-
-        Object.assign(this, restoredState);
-        return true;
     }
 
     // hasJoined returns true if the user has joined a game and is at least waiting for
@@ -102,8 +74,14 @@ class GameState {
         return !!this.started;
     }
 
+    setContractAddress(contractAddress) {
+        this.contractAddress = contractAddress;
+        this.toStorage();
+    }
+
     setHasJoined(joined) {
         this.joined = joined;
+        this.toStorage();
     }
 
     setHostAddress(hostAddress) {
@@ -132,19 +110,6 @@ class GameState {
     }
 
     toStorage() {
-        const toStore = {
-            contractAddress: this.contractAddress,
-            hostAddress: this.hostAddress,
-            hosting: this.hosting,
-            joined: this.joined,
-            playerAddress: this.playerAddress,
-            playing: this.playing,
-            started: this.started,
-            userAddress: this.userAddress,
-        }
-
-        const stateString = JSON.stringify(toStore);
-
-        localStorage.setItem("game-state", stateString);
+        this.gameStateStorage.storeGameState(this);
     }
 }

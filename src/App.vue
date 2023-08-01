@@ -1,7 +1,7 @@
 <script>
-import { initializeGameState } from './js/game_state.js'
 import { initializeMafiaServiceProvider, getMafiaService } from './js/mafia_service.js'
 import { reportError } from './js/errors.js'
+import { getGameState } from './js/game_state.js'
 
 export default {
   data() {
@@ -16,16 +16,18 @@ export default {
   mounted() {
     initializeMafiaServiceProvider().then(() => {
       getMafiaService().then(mafiaService => {
-        const contractAddressPromise = mafiaService.getMafiaContract()
-        const playerIDPromise = mafiaService.getPlayerID()
-        Promise.all([contractAddressPromise, playerIDPromise]).then(values => {
-          const [contractAddress, playerID] = values;
-          initializeGameState(contractAddress, playerID);
+        Promise.all(mafiaService.getContractAddress(), mafiaService.getPlayerID()).then(args => {
+          const [contractAddress, playerID] = args;
+          
+          getGameState().then(gameState => {
+            gameState.setContractAddress(contractAddress);
+            gameState.setPlayerAddress(playerID);
 
-          this.walletConnected = true;
-          this.$router.push('/landing');
-        }).catch(err => reportError("Failed to resolve player ID and/or contract address", err))
-      })
+            this.walletConnected = true;
+            this.$router.push('/landing');
+          }).catch(err => reportError("Failed to get game state"))
+        }).catch(err => reportError("Failed to get contract address and/or player ID", err))
+      }).catch(err => reportError("Failed to get Mafia service", err))
     }).catch(err => reportError("Failed to initialize Mafia service provider", err))
   },
 }

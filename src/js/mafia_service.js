@@ -1,6 +1,9 @@
 import { getMafiaHTTPService } from './mafia_service_http.js'
 import { getMafiaContract, initializeMafiaContract } from './mafia_service_contract.js'
+import { getInMemoryGameStateProvider } from './game_state_in_memory.js'
+import { getLocalStorageGameStateProvider } from './game_state_local_storage.js'
 import { Hardhat } from './networks.js'
+import { setGameStateProvider } from './game_state.js'
 import { ethers } from 'ethers'
 
 let mafiaServiceProvider
@@ -22,6 +25,9 @@ export function setMafiaServiceProvider(provider) {
 export function initializeMafiaServiceProvider() {
     if (process.env.NODE_ENV === "development") {
         setMafiaServiceProvider(getMafiaHTTPService)
+
+        setGameStateProvider(getInMemoryGameStateProvider)
+
         return new Promise(resolve => resolve())
     } else {
         ethereum.request({ method: 'eth_requestAccounts' }).then(accounts => {
@@ -32,7 +38,9 @@ export function initializeMafiaServiceProvider() {
             const contractAddress = Hardhat.ContractAddress;
   
             initializeMafiaContract(contractAddress, signer);
-  
+
+            setGameStateProvider(getLocalStorageGameStateProvider)
+
             setMafiaServiceProvider(getMafiaContract);
           }).catch(err => reportError("Failed to get signer", err));
         }).catch(err => reportError("Failed to get wallet address; please try again", err));

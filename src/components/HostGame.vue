@@ -1,6 +1,6 @@
 <script>
 import { getMafiaService } from '../js/mafia_service.js'
-import { requireGameState, resetGameState } from '../js/game_state.js'
+import { getGameState, resetGameState } from '../js/game_state.js'
 import { GameStarted, reportError, reportGetContractError } from '../js/errors.js'
 
 export default {
@@ -23,8 +23,10 @@ export default {
     startGame: function() {
       getMafiaservice().then(mafiaService => {
         mafiaService.startGame(this.expectedPlayerCount).then(() => {
-          requireGameState().setIsStarted(true);
-          this.$router.push('/game/play');
+          getGameState().then(gameState => {
+            gameState.setIsStarted(true);
+            this.$router.push('/game/play');
+          }).catch(err => reportError("Failed to get game state", err))
         }).catch(err => {
           if (err === GameStarted) {
             this.gameAlreadyStarted = true;
@@ -35,16 +37,20 @@ export default {
       }).catch(reportGetContractError);
     },
     resumeGame: function() {
-      requireGameState().setIsStarted(true);
-      this.$router.push('/game/play');
+      getGameState().then(gameState => {
+        gameState.setIsStarted(true)
+        this.$router.push('/game/play');
+      }).catch(err => reportError("Failed to get game state on resumption", err))
     }
   },
 
   mounted() {
-    if (requireGameState().isStarted()) {
+    getGameState().then(gameState => {
+      if (gameState.isStarted()) {
       // if the game has already been started, then go ahead and take the user to the play card
       this.$router.push('/game/play');
-    }
+      }
+    }).catch(err => reportError("Failed to get game state on initialization", err))
   }
 }
 </script>
