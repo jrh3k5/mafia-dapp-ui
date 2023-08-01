@@ -1,5 +1,5 @@
 <script>
-import { getMafiaContract } from '../js/mafia_contract.js'
+import { getMafiaService } from '../js/mafia_service.js'
 import { requireGameState } from '../js/game_state.js'
 import { reportError, reportGetContractError } from '../js/errors.js'
 import * as PlayerRole from '../js/player_role.js'
@@ -27,11 +27,11 @@ export default {
     methods: {
         accuse: function() {
             const gameState = requireGameState();
-            getMafiaContract().then(contract => {
-                contract.accuseAsMafia(gameState.getHostAddress(), this.mafiaAccusation).then(() => {
+            getMafiaService().then(mafiaService => {
+                mafiaService.accuseAsMafia(gameState.getHostAddress(), this.mafiaAccusation).then(() => {
                     this.waitingForConviction = true;
 
-                    contract.waitForPhaseExecution(gameState.getHostAddress()).then(this.handlePhaseExecution).then(() => {
+                    mafiaService.waitForPhaseExecution(gameState.getHostAddress()).then(this.handlePhaseExecution).then(() => {
                         this.mafiaAccusation = null;
                         this.waitingForConviction = false;
                     }).catch(err => reportError("Failed to wait for phase execution", err));
@@ -40,9 +40,9 @@ export default {
         },
         executePhase: function() {
             const gameState = requireGameState();
-            getMafiaContract().then(contract => {
-                contract.waitForPhaseExecution(gameState.getHostAddress()).then(this.handlePhaseExecution).catch(err => reportError("Failed to wait for phase execution", err));
-                contract.executePhase().catch(err => reportError("Failed to execute game phase", err));
+            getMafiaService().then(getMafiaService => {
+                mafiaService.waitForPhaseExecution(gameState.getHostAddress()).then(this.handlePhaseExecution).catch(err => reportError("Failed to wait for phase execution", err));
+                mafiaService.executePhase().catch(err => reportError("Failed to execute game phase", err));
             }).catch(reportGetContractError);
         },
         getOtherPlayers: function() {
@@ -115,11 +115,11 @@ export default {
         },
         voteToKill: function() {
             const gameState = requireGameState();
-            getMafiaContract().then(contract => {
-                contract.accuseAsMafia(gameState.getHostAddress(), this.killVote).then(() => {
+            getMafiaService().then(mafiaService => {
+                mafiaService.accuseAsMafia(gameState.getHostAddress(), this.killVote).then(() => {
                     this.waitingForMurder = true;
 
-                    contract.waitForPhaseExecution().then(this.handlePhaseExecution).then(() => {
+                    mafiaService.waitForPhaseExecution().then(this.handlePhaseExecution).then(() => {
                         this.killVote = null;
                         this.waitingForMurder = false;
                     }).catch(err => reportError("Failed to wait for phase execution", err));
@@ -140,13 +140,13 @@ export default {
 
         this.isHosting = gameState.isHosting();
 
-        getMafiaContract().then(contract => {
-            contract.getPlayerRole(hostAddress).then(playerRole => {
+        getMafiaService().then(mafiaService => {
+            mafiaService.getPlayerRole(hostAddress).then(playerRole => {
                 this.isMafia = playerRole === PlayerRole.PlayerRoleMafia;
                 this.isCivilian = playerRole === PlayerRole.PlayerRoleCivilian;
             }).catch(err => reportError("Failed to get player's information", err));
 
-            contract.getPlayerNicknames(hostAddress).then(playerNicknames => {
+            mafiaService.getPlayerNicknames(hostAddress).then(playerNicknames => {
                 this.players = [];
                 playerNicknames.forEach((playerNickname, playerAddress) => {
                     this.players.push(new GamePlayer(playerAddress, playerNickname));

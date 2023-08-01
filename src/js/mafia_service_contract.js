@@ -75,6 +75,14 @@ class MafiaContract {
     })
   }
 
+  getContractAddress() {
+    return new Promise(resolve => resolve(this.contractAddress))
+  }
+
+  getPlayerID() {
+    return new Promise(resolve => resolve(this.signerAddress))
+  }
+
   // getPlayerRole gets the player's role in a game hosted by the given host address.
   getPlayerRole(hostAddress) {
     return new Promise((resolve, reject) => {

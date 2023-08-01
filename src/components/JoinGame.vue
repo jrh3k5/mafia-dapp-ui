@@ -1,5 +1,5 @@
 <script>
-import { getMafiaContract } from '../js/mafia_contract.js'
+import { getMafiaService } from '../js/mafia_service.js'
 import { requireGameState, resetGameState } from '../js/game_state.js'
 import { GameStarted, reportError, reportGetContractError } from '../js/errors.js'
 
@@ -17,8 +17,8 @@ export default {
     methods: {
         cancel: function() {
             if (this.userIsHost) {
-                getMafiaContract().then(contract => {
-                    contract.cancelGame().then(() => {
+                getMafiaService().then(mafiaService => {
+                    mafiaService.cancelGame().then(() => {
                         resetGameState();
                         this.$router.push('/landing');
                     }).catch(err => reportError("Failed to cancel game", err))
@@ -29,8 +29,8 @@ export default {
             }
         },
         joinGame: function() {
-            getMafiaContract().then(contract => {
-                contract.joinGame(this.hostAddress, this.userNickname).then(() => {
+            getMafiaService().then(mafiaService => {
+                mafiaService.joinGame(this.hostAddress, this.userNickname).then(() => {
                     const gameState = requireGameState();
                     gameState.setHostAddress(this.hostAddress);
                     gameState.setHasJoined(true);
@@ -40,7 +40,7 @@ export default {
                         // tell the user that they're waiting for the host to begin the game
                         this.waitingForStart = true;
 
-                        contract.waitForGameStart().then(() => {
+                        mafiaService.waitForGameStart().then(() => {
                             this.$router.push('/game/play');
                         }).catch(err => reportError("Failed to start waiting for game to start", err))
                     }

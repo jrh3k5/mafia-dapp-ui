@@ -1,6 +1,6 @@
 <script>
 import { getGameState, requireGameState, resetGameState } from '../js/game_state.js'
-import { getMafiaContract } from '../js/mafia_contract.js'
+import { getMafiaService } from '../js/mafia_service.js'
 import { GameAlreadyInitialized, reportError, reportGetContractError } from '../js/errors.js'
 
 export default {
@@ -12,8 +12,8 @@ export default {
 
   methods: {
     cancelGame: function() {
-      getMafiaContract().then(contract => {
-        contract.cancelGame().then(() => {
+      getMafiaService().then(mafiaService => {
+        mafiaService.cancelGame().then(() => {
           this.gameAlreadyInitialized = false;
           resetGameState();
           this.$router.push('/landing');
@@ -21,8 +21,8 @@ export default {
       }).catch(reportGetContractError);
     },
     hostGame: function() {
-      getMafiaContract().then(contract => {
-        contract.initializeGame().then(() => {
+      getMafiaService().then(mafiaService => {
+        mafiaService.initializeGame().then(() => {
           const gameState = requireGameState();
           gameState.setIsHosting(true);
           gameState.setIsPlaying(false);
