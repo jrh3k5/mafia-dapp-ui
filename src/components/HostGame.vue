@@ -21,7 +21,7 @@ export default {
       }).catch(reportGetContractError)
     },
     startGame: function() {
-      getMafiaservice().then(mafiaService => {
+      getMafiaService().then(mafiaService => {
         mafiaService.startGame(this.expectedPlayerCount).then(() => {
           getGameState().then(gameState => {
             gameState.setIsStarted(true);

@@ -1,2 +1,2 @@
-export const PlayerRoleMafia = "mafia";
 export const PlayerRoleCivilian = "civilian";
+export const PlayerRoleMafia = "mafia";

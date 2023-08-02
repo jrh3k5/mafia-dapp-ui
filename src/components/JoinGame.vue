@@ -40,7 +40,7 @@ export default {
                             // tell the user that they're waiting for the host to begin the game
                             this.waitingForStart = true;
 
-                            mafiaService.waitForGameStart().then(() => {
+                            mafiaService.waitForGameStart(this.hostAddress).then(() => {
                                 this.$router.push('/game/play');
                             }).catch(err => reportError("Failed to start waiting for game to start", err))
                         }

@@ -52,28 +52,32 @@ export default {
             // TODO: verify that this handles promises properly
             return new Promise((resolve, reject) => {
                 getGameState().then(gameState => {
-                    playerAddress = gameState.getPlayerAddress().toLowerCase();
+                    const playerAddress = gameState.getPlayerAddress().toLowerCase();
                     const matchingPlayers = players.filter(p => p.playerAddress.toLowerCase() != playerAddress);
                     resolve(matchingPlayers);
                 }).catch(reject);
             })
         },
         getVotablePlayers: function() {
-            return this.getOtherPlayers().filter(p => !p.dead && !p.convicted);
+            // TODO: verify that this handles promises properly
+            return new Promise((resolve, reject) => {
+                this.getOtherPlayers().then(otherPlayers => {
+                    resolve(otherPlayers.filter(p => !p.dead && !p.convicted));
+                }).catch(reject);
+            });
         },
         handlePhaseExecution: function(resolutionArgs) {
             const [phaseOutcome, timeOfDay, playersKilled, playersConvicted] = resolutionArgs;
-            // TODO: restore
-            // switch (phaseOutcome) {
-            //     case PhaseOutcome.PhaseOutcomeCivilianVictory:
-            //         // TODO: take the user to a page letting them know that the civilians won
-            //         alert("The civilians won!");
-            //         return;
-            //     case PhaseOutcome.PhaseOutcomeMafiaVictory:
-            //         // TODO: take the user to a page letting them know that the Mafia won
-            //         alert("The Mafia won!");
-            //         return;
-            // }
+            switch (phaseOutcome) {
+                case PhaseOutcome.PhaseOutcomeCivilianVictory:
+                    // TODO: take the user to a page letting them know that the civilians won
+                    alert("The civilians won!");
+                    return;
+                case PhaseOutcome.PhaseOutcomeMafiaVictory:
+                    // TODO: take the user to a page letting them know that the Mafia won
+                    alert("The Mafia won!");
+                    return;
+            }
 
             if (timeOfDay == TimeOfDay.TimeOfDayDay) {
                 if(playersConvicted) {
