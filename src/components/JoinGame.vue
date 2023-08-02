@@ -71,7 +71,7 @@ export default {
         getGameState().then(gameState => {
             this.userIsHost = gameState.isHosting();
             if (this.userIsHost) {
-                this.hostAddress = gameState.getUserAddress();
+                this.hostAddress = gameState.getPlayerAddress();
             }
 
             // if they've already joined a game, then skip this step

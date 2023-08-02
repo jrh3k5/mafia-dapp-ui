@@ -18,17 +18,18 @@ export function getMafiaContract() {
     }
     
     // Try to re-initialize it from game state
-    const gameState = getGameState();
-    if (!gameState) {
-      reject('Mafia contract has not been initialized');
-      return;
-    }
-
-    const userAddress = gameState.getUserAddress();
-    const provider = new ethers.BrowserProvider(ethereum);
-    provider.getSigner(userAddress).then(signer => {
-      const mafiaContract = initializeMafiaContract(gameState.getContractAddress(), signer);
-      resolve(mafiaContract);
+    getGameState().then(gameState => {
+      if (!gameState) {
+        reject('Mafia contract has not been initialized');
+        return;
+      }
+  
+      const userAddress = gameState.getPlayerAddress();
+      const provider = new ethers.BrowserProvider(ethereum);
+      provider.getSigner(userAddress).then(signer => {
+        const mafiaContract = initializeMafiaContract(gameState.getContractAddress(), signer);
+        resolve(mafiaContract);
+      }).catch(reject);
     }).catch(reject);
   })
 }

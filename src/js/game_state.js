@@ -4,11 +4,11 @@ let gameStateProvider;
 // resetGameState resets the game state to a default state
 // It does not clear out the game state, so required initial values (such as user wallet address) are retained.
 export function resetGameState() {
-    // TODO: move this into game state storage provider
-    localStorage.removeItem("game-state");
-    if(gameState) {
-        gameState = initializeGameState(gameState.getContractAddress(), gameState.getUserAddress());
+    if (!gameStateProvider) {
+        return;
     }
+
+    gameStateProvider.resetGameState();
 }
 
 // getGameState gets, if available, the game state. This can return null if there is no available game state.
@@ -31,6 +31,9 @@ export function setGameStateProvider(givenProvider) {
 
 export class GameState {
     constructor(contractAddress, playerAddress, gameStateStorage) {
+        if (!gameStateStorage) {
+            throw "a game state storage mechanism must be provided";
+        }
         this.contractAddress = contractAddress;
         this.playerAddress = playerAddress;
         this.gameStateStorage = gameStateStorage;
@@ -47,10 +50,6 @@ export class GameState {
 
     getPlayerAddress() {
         return this.playerAddress;
-    }
-
-    getUserAddress() {
-        return this.userAddress;
     }
 
     // hasJoined returns true if the user has joined a game and is at least waiting for

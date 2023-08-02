@@ -26,7 +26,7 @@ export default {
           getGameState().then(gameState => {
             gameState.setIsHosting(true);
             gameState.setIsPlaying(false);
-            gameState.setHostAddress(gameState.getUserAddress());
+            gameState.setHostAddress(gameState.getPlayerAddress());
             this.$router.push('/game/join');
           }).catch(err => reportError("Failed to get game state on hosting of game", err))
         }).catch(err => {
@@ -49,7 +49,7 @@ export default {
       getGameState().then(gameState => {
         gameState.setIsHosting(true);
         gameState.setIsPlaying(false);
-        gameState.setHostAddress(gameState.getUserAddress());
+        gameState.setHostAddress(gameState.getPlayerAddress());
         gameState.setHasJoined(true);
         this.$router.push('/game/play');
       }).catch(err => reportError("Failed to get game state while resuming game", err))
@@ -57,8 +57,7 @@ export default {
   },
 
   mounted() {
-    const gameState = getGameState()
-    if (gameState) {
+    getGameState().then(gameState => {
       if (gameState.isHosting()) {
         // go ahead and automatically take the user to the hosting page
         this.$router.push('/game/host');
@@ -66,7 +65,7 @@ export default {
         // if the user is playing, then they are trying to join a game
         this.$router.push('/game/join');
       }
-    }
+    }).catch(err => reportError("Failed to get game state on initialization", err))
   }
 }
 </script>

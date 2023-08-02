@@ -26,7 +26,7 @@ export function initializeMafiaServiceProvider() {
     if (process.env.NODE_ENV === "development") {
         setMafiaServiceProvider(getMafiaHTTPService)
 
-        setGameStateProvider(getInMemoryGameStateProvider)
+        setGameStateProvider(getInMemoryGameStateProvider())
 
         return new Promise(resolve => resolve())
     } else {
@@ -39,7 +39,7 @@ export function initializeMafiaServiceProvider() {
   
             initializeMafiaContract(contractAddress, signer);
 
-            setGameStateProvider(getLocalStorageGameStateProvider)
+            setGameStateProvider(getLocalStorageGameStateProvider())
 
             setMafiaServiceProvider(getMafiaContract);
           }).catch(err => reportError("Failed to get signer", err));

@@ -7,6 +7,10 @@ export function getLocalStorageGameStateProvider() {
 class LocalStorageGameStateProvider {
     getGameState() {
         return new Promise(resolve => {
+            if (this.gameState) {
+                return this.gameState;
+            }
+
             const storedState = localStorage.getItem("game-state");
             if (!storedState) {
                 resolve(new GameState("", "", this));
@@ -24,8 +28,16 @@ class LocalStorageGameStateProvider {
     
             const gameState = new GameState("", "", this);
             Object.assign(gameState, restoredState);
+            this.gameState = gameState;
             resolve(gameState);
         })
+    }
+
+    resetGameState() {
+        localStorage.removeItem("game-state");
+        if(this.gameState) {
+            this.gameState = new GameState(this.gameState.getContractAddress(), this.gameState.getPlayerAddress(), this);
+        }
     }
 
     storeGameState(gameState) {

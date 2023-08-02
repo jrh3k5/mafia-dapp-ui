@@ -6,12 +6,20 @@ export function getInMemoryGameStateProvider() {
 
 class InMemoryGameStateProvider {
     constructor() {
-        this.gameGame = new GameState();
+        this.gameState = new GameState("", "", this);
     }
 
     getGameState() {
         const gameState = this.gameState;
         return new Promise(resolve => resolve(gameState));
+    }
+
+    resetGameState() {
+        if (!this.gameState) {
+            return;
+        }
+
+        this.gameState = new GameState(this.gameState.getContractAddress(), this.gameState.getPlayerAddress(), this);
     }
 
     storeGameState(gameState) {

@@ -20,7 +20,7 @@ class MafiaService {
 
     }
 
-    getMafiaContract() {
+    getContractAddress() {
         // there is no contract address for pure HTTP communications
         return new Promise(resolve => resolve(""))
     }
