@@ -18,6 +18,7 @@ export default {
             isNight: false,
             mafiaAccusation: null,
             players: null,
+            playerAddress: null,
             summarizingPhaseExecution: false,
             waitingForConviction: false,
             waitingForMurder: false,
@@ -41,30 +42,22 @@ export default {
         },
         executePhase: function() {
             getGameState().then(gameState => {
-                getMafiaService().then(getMafiaService => {
+                getMafiaService().then(mafiaService => {
                     mafiaService.waitForPhaseExecution(gameState.getHostAddress()).then(this.handlePhaseExecution).catch(err => reportError("Failed to wait for phase execution", err));
                     mafiaService.executePhase().catch(err => reportError("Failed to execute game phase", err));
                 }).catch(reportGetContractError);
             }).catch(err => reportError("Failed to get game state on phase execution", err))
         },
         getOtherPlayers: function() {
-            const players = this.players;
-            // TODO: verify that this handles promises properly
-            return new Promise((resolve, reject) => {
-                getGameState().then(gameState => {
-                    const playerAddress = gameState.getPlayerAddress().toLowerCase();
-                    const matchingPlayers = players.filter(p => p.playerAddress.toLowerCase() != playerAddress);
-                    resolve(matchingPlayers);
-                }).catch(reject);
-            })
+            // if the page hasn't fully mounted yet, return nothing
+            if (!this.playerAddress || !this.players) {
+                return [];
+            }
+
+            return this.players.filter(p => this.playerAddress.toLowerCase() != p.playerAddress.toLowerCase());
         },
         getVotablePlayers: function() {
-            // TODO: verify that this handles promises properly
-            return new Promise((resolve, reject) => {
-                this.getOtherPlayers().then(otherPlayers => {
-                    resolve(otherPlayers.filter(p => !p.dead && !p.convicted));
-                }).catch(reject);
-            });
+            return this.getOtherPlayers().filter(p => !p.dead && !p.convicted);
         },
         handlePhaseExecution: function(resolutionArgs) {
             const [phaseOutcome, timeOfDay, playersKilled, playersConvicted] = resolutionArgs;
@@ -153,6 +146,7 @@ export default {
                 return;
             }
 
+            this.playerAddress = gameState.getPlayerAddress();
             this.isHosting = gameState.isHosting();
 
             getMafiaService().then(mafiaService => {

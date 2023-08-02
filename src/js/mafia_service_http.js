@@ -114,7 +114,7 @@ class MafiaService {
                 }
 
                 let timeOfDay;
-                switch(response.data.timeOfDay) {
+                switch(response.data.currentPhase) {
                     case 0:
                         timeOfDay = TimeOfDay.TimeOfDayDay;
                         break;
