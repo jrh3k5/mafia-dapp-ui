@@ -6,6 +6,7 @@ import HostGame from './components/HostGame.vue'
 import JoinGame from './components/JoinGame.vue'
 import Landing from './components/Landing.vue'
 import PlayCard from './components/PlayCard.vue'
+import MafiaVictory from './components/MafiaVictory.vue'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -14,6 +15,7 @@ const router = createRouter({
         { path: '/game/host', component: HostGame },
         { path: '/game/join', component: JoinGame },
         { path: '/game/play', component: PlayCard },
+        { path: '/game/victory/mafia', component: MafiaVictory },
     ]
 });
 

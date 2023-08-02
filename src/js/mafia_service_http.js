@@ -24,11 +24,17 @@ class MafiaService {
     }
 
     cancelGame() {
+        // TODO: why does this issue an OPTIONS request?
         return axios.delete(`http://localhost:3000/game/${this.hostAddress}`)
     }
 
     executePhase() {
         return axios.post(`http://localhost:3000/game/${this.hostAddress}/phase/execute`)
+    }
+
+    finishGame() {
+        // same thing as cancelling
+        return this.cancelGame()
     }
 
     getContractAddress() {

@@ -76,6 +76,14 @@ class MafiaContract {
     })
   }
 
+  finishGame() {
+    return new Promise((resolve, reject) => {
+      this.contract.finishGame().then(txResult => {
+        txResult.wait().then(resolve).catch(reject);
+      }).catch(reject);
+    })
+  }
+
   getContractAddress() {
     return new Promise(resolve => resolve(this.contractAddress))
   }
@@ -236,6 +244,7 @@ const mafiaABI = [
   "function cancelGame()",
   "function executePhase()",
   "function initializeGame()",
+  "function finishGame()",
   "function getPlayerList(address hostAddress) view returns(tuple(address walletAddress, string nickname)[])",
   "function getSelfPlayerInfo(address hostAddress) view returns(tuple(address walletAddress, string nickname, bool dead, bool convicted, uint playerRole))",
   "function joinGame(address hostAddress, string playerNickName)",

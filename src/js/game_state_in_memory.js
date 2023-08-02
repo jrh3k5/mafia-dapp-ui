@@ -9,9 +9,20 @@ class InMemoryGameStateProvider {
         this.gameState = new GameState("", "", this);
     }
 
+    clearGameState() {
+        this.gameState = null;
+    }
+
     getGameState() {
         const gameState = this.gameState;
-        return new Promise(resolve => resolve(gameState));
+        return new Promise((resolve, reject) => {
+            if (!gameState) {
+                reject("no game state currently available");
+                return;
+            }
+
+            resolve(gameState);
+        });
     }
 
     resetGameState() {

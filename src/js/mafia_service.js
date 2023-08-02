@@ -52,6 +52,7 @@ export function initializeMafiaServiceProvider() {
  * accuseAsMafia(hostAddress string, accusedAddress string) Promise
  * cancelGame() Promise
  * executePhase() Promise
+ * finishGame() Promise
  * getContractAddress() Promise(string)
  * getPlayerID() Promise(string)
  * getPlayerRole(hostAddress string) Promise(PlayerRole)

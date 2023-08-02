@@ -1,6 +1,15 @@
 let gameState;
 let gameStateProvider;
 
+// clearGameState completely erases all game state
+export function clearGameState() {
+    if (!gameStateProvider) {
+        return;
+    }
+
+    gameStateProvider.clearGameState();
+}
+
 // resetGameState resets the game state to a default state
 // It does not clear out the game state, so required initial values (such as user wallet address) are retained.
 export function resetGameState() {

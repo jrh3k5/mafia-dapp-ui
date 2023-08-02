@@ -5,6 +5,11 @@ export function getLocalStorageGameStateProvider() {
 }
 
 class LocalStorageGameStateProvider {
+    clearGameState() {
+        localStorage.removeItem("game-state");
+        this.gameState = null;
+    }
+
     getGameState() {
         return new Promise(resolve => {
             if (this.gameState) {

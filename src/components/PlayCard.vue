@@ -67,8 +67,7 @@ export default {
                     alert("The civilians won!");
                     return;
                 case PhaseOutcome.PhaseOutcomeMafiaVictory:
-                    // TODO: take the user to a page letting them know that the Mafia won
-                    alert("The Mafia won!");
+                    this.$router.push('/game/victory/mafia');
                     return;
             }
 
