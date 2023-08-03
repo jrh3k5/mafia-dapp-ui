@@ -21,10 +21,12 @@ export default {
             isCivilian: false,
             isDay: true, // game's start at day time
             isNight: false,
+            killVote: null,
             mafiaAccusation: null,
             players: null,
             playerAddress: null,
             summarizingPhaseExecution: false,
+            timeOfDayEnum: {},
             waitingForConviction: false,
             waitingForMurder: false,
         }
@@ -46,7 +48,7 @@ export default {
             }).catch(err => reportError("Failed to get game state while accusing another player", err))
         },
         beginNextPhase: function() {
-            switch (phaseOutcome) {
+            switch (this.phaseExecutionResults.phaseOutcome) {
                 case PhaseOutcome.PhaseOutcomeCivilianVictory:
                     this.$router.push('/game/victory/civilian');
                     return;
@@ -56,6 +58,13 @@ export default {
                 default:
                     this.summarizingPhaseExecution = false;
             }
+        },
+        canPlay: function() {
+            const thisPlayer = this.resolvePlayer(this.playerAddress);
+            if (!thisPlayer) {
+                return false;
+            }
+            return !thisPlayer.dead && !thisPlayer.convicted;
         },
         executePhase: function() {
             getGameState().then(gameState => {
@@ -109,7 +118,7 @@ export default {
                 if(playersKilled) {
                     playersKilled.forEach(playerAddress => {
                         let resolvedName;
-                        const resolvedPlayer = this.resolvePlayer(walletAddress);
+                        const resolvedPlayer = this.resolvePlayer(playerAddress);
                         if (resolvedPlayer) {
                             resolvedName = resolvedPlayer.playerNickname;
                             resolvedPlayer.dead = true;
@@ -143,21 +152,13 @@ export default {
 
             return match
         },
-        resolvePlayerNickname: function(walletAddress) {
-            const matchingPlayer = this.resolvePlayer(walletAddress);
-            if (!matchingPlayer) {
-                return null;
-            }
-            
-            return matchingPlayer.playerNickname;
-        },
         voteToKill: function() {
-                getGameState().then(gameState => {
+            getGameState().then(gameState => {
                 getMafiaService().then(mafiaService => {
-                    mafiaService.accuseAsMafia(gameState.getHostAddress(), this.killVote).then(() => {
+                    mafiaService.voteToKill(gameState.getHostAddress(), this.killVote).then(() => {
                         this.waitingForMurder = true;
 
-                        mafiaService.waitForPhaseExecution().then(this.handlePhaseExecution).then(() => {
+                        mafiaService.waitForPhaseExecution(gameState.getHostAddress()).then(this.handlePhaseExecution).then(() => {
                             this.killVote = null;
                             this.waitingForMurder = false;
                         }).catch(err => reportError("Failed to wait for phase execution", err));
@@ -168,6 +169,8 @@ export default {
     },
 
     mounted() {
+        this.timeOfDayEnum = TimeOfDay;
+
         getGameState().then(gameState => {
             const hostAddress = gameState.getHostAddress();
             if (!hostAddress) {
@@ -209,24 +212,24 @@ export default {
         </div>
     </div>
 
-    <div v-if="this.players && !this.summarizingPhaseExecution">
-        <hr />
+    <hr />
 
-        Use the following table to track the conditions of your fellow players.
+    <div v-if="this.players && !this.summarizingPhaseExecution && this.canPlay()">
+        Use the following table to track the conditions of your fellow players. It will be automatically populated as players are killed or convicted.
 
         <table>
             <thead>
                 <tr>
                     <th>Player Nickname</th>
                     <th>Dead</th>
-                    <th>Expelled as Mafia</th>
+                    <th>Convicted</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-for="player in this.getOtherPlayers()">
                     <td>{{ player.playerNickname }}</td>
-                    <td><input type="checkbox" v-model="player.dead" /></td>
-                    <td><input type="checkbox" v-model="player.convicted" /></td>
+                    <td><input type="radio" v-model="player.dead" readonly disabled /></td>
+                    <td><input type="radio" v-model="player.convicted" readonly disabled /></td>
                 </tr> 
             </tbody>
         </table>
@@ -292,18 +295,34 @@ export default {
 
                     <p />
 
-                    <button type="submit" @click="this.accuse()" :disabled="!this.mafiaAccusation">Vote to Kill</button>
+                    <button type="submit" @click="this.voteToKill()" :disabled="!this.killVote">Vote to Kill</button>
                 </div>
                 <div v-if="this.waitingForMurder">
-                    Your vote to kill a player has been submitted. Wait for the round timer to complete and the host to tally the kill votes.
+                    <div v-if="!this.isHosting">
+                        Your vote to kill a player has been submitted. Wait for the round timer to complete and the host to tally the kill votes.
+                    </div>
+                    <div v-if="this.isHosting">
+                        Your vote to kill a player has been submitted. When the timer concludes, click the button below to submit the kill votes.
+
+                        <button type="submit" @click="this.executePhase()">Continue</button>
+                    </div>
+                </div>
+                <div v-if="!this.isMafia && this.isHosting">
+                    You are not the Mafia! Start a timer long enough to allow the Mafia to decide who to kill and, when the timer is up, click the button below to proceed.
+
+                    <button type="submit" @click="this.executePhase()">Continue</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <div v-if="this.players && !this.summarizingPhaseExecution && !this.canPlay()">
+        You are, unfortunately, unable to continue playing the game. From here on out, give your fellow teammates the moral support they need for victory!
+    </div>
+
     <div v-if="this.summarizingPhaseExecution && this.phaseExecutionResults">
         <!-- TODO: bind these values to this so that TimeOfDayDay can be resolved -->
-        <div v-if="this.phaseExecutionResults.timeOfDay == TimeOfDay.TimeOfDayDay">
+        <div v-if="this.phaseExecutionResults.timeOfDay == this.timeOfDayEnum.TimeOfDayDay">
             <div v-if="this.phaseExecutionResults.convictedPlayer">
                 By majority vote, the people of the city have convicted {{ this.phaseExecutionResults.convictedPlayer }} of being a member of the Mafia.
             </div>
@@ -311,7 +330,7 @@ export default {
                 The city could not come to a majority agreement on who is a member of the Mafia; the day passes without a conviction.
             </div>
         </div>
-        <div v-if="this.phaseExecutionResults.timeOfDay == TimeOfDay.TimeOfDayNight">
+        <div v-if="this.phaseExecutionResults.timeOfDay == this.timeOfDayEnum.TimeOfDayNight">
             <div v-if="this.phaseExecutionResults.killedPlayer">
                 As the citizens of the city slept, the Mafia quietly conspired to end the life of {{  this.phaseExecutionResults.killedPlayer }}. The day dawns with one less person in the city.
             </div>
@@ -320,6 +339,6 @@ export default {
             </div>
         </div>
 
-        <button type="submit" @click="this.beginNextPhase()" />
+        <button type="submit" @click="this.beginNextPhase()">Continue</button>
     </div>
 </template>

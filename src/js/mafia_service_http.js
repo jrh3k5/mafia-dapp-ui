@@ -48,7 +48,6 @@ class MafiaService {
     getPlayerRole(hostAddress) {
         return new Promise((resolve, reject) => {
             axios.get(`http://localhost:3000/game/${hostAddress}/players/${this.playerID}`).then(response => {
-                console.log("getPlayerRole response", response);
                 if (!response.data.playerRole && response.data.playerRole !== 0) {
                     reject("no player role found in response");
                     return;
@@ -97,6 +96,10 @@ class MafiaService {
     startGame() {
         // don't have to worry about block synchronization, so don't enforce expected player count
         return axios.post(`http://localhost:3000/game/${this.hostAddress}/start`)
+    }
+
+    voteToKill(hostAddress, victimAddress) {
+        return axios.post(`http://localhost:3000/game/${hostAddress}/players/${this.playerID}/vote/kill?playerAddress=${victimAddress}`)
     }
 
     waitForPhaseExecution(hostAddress) {

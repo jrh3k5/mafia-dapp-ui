@@ -60,6 +60,7 @@ export function initializeMafiaServiceProvider() {
  * initializeGame() Promise
  * joinGame(hostAddress string, playerNickname string) Promise
  * startGame(expectedPlayerCount int) Promise
+ * voteToKill(hostAddress string, victimAddress string) Promise
  * waitForPhaseExecution(hostAddress string) Promise([PhaseOutcome, TimeOfDay, playersKilled []string, playersConvicted []string])
  * waitForGameStart(hostAddress string) Promise
  */

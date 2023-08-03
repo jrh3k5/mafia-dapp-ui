@@ -182,6 +182,14 @@ class MafiaContract {
     });
   }
 
+  voteToKill(hostAddres, victimAddress) {
+    return new Promise((resolve, reject) => {
+      this.contract.voteToKill(hostAddres, victimAddress).then(txResult => {
+        txResult.wait().then(resolve).catch(reject);
+      }).catch(reject)
+    })
+  }
+
   // waitForPhaseExecution waits for the emission of an event indicating that a phase
   // has been executed for a game hosted by the given address. When the returned promise resolves, it will return:
   // - an enum of the outcome of the phase execution
@@ -249,6 +257,7 @@ const mafiaABI = [
   "function getSelfPlayerInfo(address hostAddress) view returns(tuple(address walletAddress, string nickname, bool dead, bool convicted, uint playerRole))",
   "function joinGame(address hostAddress, string playerNickName)",
   "function startGame(uint expectedPlayerCount)",
+  "function voteToKill(address hostAddress, address victimAddress)",
   // events
   "event GameInitialized(address indexed hostAddress)",
   "event GameJoined(address indexed hostAddress, address indexed playerAddress)",
