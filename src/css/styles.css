@@ -32,15 +32,90 @@ div#main-content {
     text-align: center;
 
     padding: 2em;
+
+    font-family: Arial;
+
+    font-size: large;
 }
 
 button {
     font-size: xx-large;
-    margin: 2em;
+
+    margin: auto;
+    margin-top: 2em;
 
     padding: 1.5em;
 
     transform: scale3d(0.25);
     border: 5px solid black;
     border-radius: 40px;
+
+    display: block;
+}
+
+button:disabled {
+    border-color: gray;
+}
+
+input,
+select {
+    display: block;
+
+    padding: 0.5em;
+
+    transform: scale3d(0.25);
+    border: 5px solid black;
+    border-radius: 40px;
+}
+
+input {
+    font-size: xx-large;
+    width: 90%;
+}
+
+select {
+    font-size: x-large;
+    width: 100%;
+}
+
+input:read-only {
+    color: gray;
+    border-color: gray;
+}
+
+label {
+    font-size: xx-large;
+    padding-top: 1em;
+    display: block;
+    text-align: left;
+}
+
+table {
+    margin-top: 1em;
+    margin-bottom: 1em;
+
+    border-spacing: 0;
+
+    width: 100%;
+}
+
+table thead tr th,
+table tbody tr td {
+    border-style: solid;
+    border-width: 2px 2px 0 0;
+    border-color: #606060;
+}
+
+table thead tr th {
+    border-top-width: 0;
+}
+
+table thead tr th:first-of-type,
+table tbody tr td:first-of-type {
+    border-left-width: 0;
+}
+
+table thead tr th:last-of-type,
+table tbody tr td:last-of-type {
+    border-right-width: 0;
 }

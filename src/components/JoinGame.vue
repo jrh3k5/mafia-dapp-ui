@@ -88,20 +88,14 @@ export default {
 <template>
     <div v-if="!this.gameAlreadyStarted">
         <div v-if="!this.waitingForStart">
-            Host address:
-            <br />
-            <input v-model="hostAddress" v-bind:readonly="this.userIsHost" />
+            <label for="host-address">Host address:</label>
+            <input id="host-address" v-model="hostAddress" v-bind:readonly="this.userIsHost" />
 
-            <p />
-
-            Nickname:
-            <br />
-            <input v-model="userNickname" />
-
-            <p />
+            <label for="player-nickname">Nickname:</label>
+            <input id="player-nickname" v-model="userNickname" />
 
             <button type="submit" @click="this.joinGame()">Join Game</button>
-            <p />
+
             <button type="submit" @click="this.cancel()">Cancel</button>
         </div>
         <div v-if="this.waitingForStart">
@@ -111,10 +105,8 @@ export default {
     <div v-if="this.gameAlreadyStarted">
         You are already participating in a game; do you wish to resume it?
         
-        <p />
-
         <button type="submit" @click="this.resumeGame()">Resume Game</button>
-        <p />
+
         <button type="submit" @click="this.cancel()">Cancel</button>
     </div>
 </template>
