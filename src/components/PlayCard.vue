@@ -45,6 +45,18 @@ export default {
                 }).catch(reportGetContractError);
             }).catch(err => reportError("Failed to get game state while accusing another player", err))
         },
+        beginNextPhase: function() {
+            switch (phaseOutcome) {
+                case PhaseOutcome.PhaseOutcomeCivilianVictory:
+                    this.$router.push('/game/victory/civilian');
+                    return;
+                case PhaseOutcome.PhaseOutcomeMafiaVictory:
+                    this.$router.push('/game/victory/mafia');
+                    return;
+                default:
+                    this.summarizingPhaseExecution = false;
+            }
+        },
         executePhase: function() {
             getGameState().then(gameState => {
                 getMafiaService().then(mafiaService => {
@@ -66,26 +78,27 @@ export default {
         },
         handlePhaseExecution: function(resolutionArgs) {
             const [phaseOutcome, timeOfDay, playersKilled, playersConvicted] = resolutionArgs;
-            switch (phaseOutcome) {
-                case PhaseOutcome.PhaseOutcomeCivilianVictory:
-                    this.$router.push('/game/victory/civilian');
-                    return;
-                case PhaseOutcome.PhaseOutcomeMafiaVictory:
-                    this.$router.push('/game/victory/mafia');
-                    return;
+            this.phaseExecutionResults = {
+                phaseOutcome: phaseOutcome,
+                timeOfDay: timeOfDay,
             }
 
             if (timeOfDay == TimeOfDay.TimeOfDayDay) {
                 if(playersConvicted) {
                     playersConvicted.forEach(playerAddress => {
-                        let resolvedName = this.resolveUserNickname(playerAddress)
+                        let resolvedName;
+                        const resolvedPlayer = this.resolvePlayer(playerAddress);
+                        if(resolvedPlayer) {
+                            resolvedName = resolvedPlayer.playerNickname;
+                            resolvedPlayer.convicted = true;
+                        }
+                        
                         if (!resolvedName) {
                             resolvedName = playerAddress;
                         }
-                        alert(`By a jury of their peers, ${resolvedName} has been convicted of being a member of the Mafia!`);
+
+                        this.phaseExecutionResults.convictedPlayer = resolvedName;
                     })
-                } else {
-                    alert("No one player received the majority of votes; no one has been convicted of being a Mafia member");
                 }
 
                 this.isDay = false;
@@ -95,14 +108,19 @@ export default {
             } else if (timeOfDay == TimeOfDay.TimeOfDayNight) {
                 if(playersKilled) {
                     playersKilled.forEach(playerAddress => {
-                        let resolvedName = this.resolveUserNickname(playerAddress)
+                        let resolvedName;
+                        const resolvedPlayer = this.resolvePlayer(walletAddress);
+                        if (resolvedPlayer) {
+                            resolvedName = resolvedPlayer.playerNickname;
+                            resolvedPlayer.dead = true;
+                        }
+
                         if (!resolvedName) {
                             resolvedName = playerAddress;
                         }
-                        alert(`Oh, no! ${resolvedName} has been murdered overnight!`);
+                        
+                        this.phaseExecutionResults.killedPlayer = resolvedName;
                     })
-                } else {
-                    alert("The Mafia has decided to act benevolently; no one has been murdered overnight.");
                 }
 
                 this.isNight = false;
@@ -110,8 +128,10 @@ export default {
 
                 // TODO: if player is dead, don't let them play anymore
             }
+
+            this.summarizingPhaseExecution = true;
         },
-        resolveUserNickname: function(walletAddress) {
+        resolvePlayer: function(walletAddress) {
             if(!this.players) {
                 return null;
             }
@@ -121,7 +141,15 @@ export default {
                 return null;
             }
 
-            return match.playerNickname;
+            return match
+        },
+        resolvePlayerNickname: function(walletAddress) {
+            const matchingPlayer = this.resolvePlayer(walletAddress);
+            if (!matchingPlayer) {
+                return null;
+            }
+            
+            return matchingPlayer.playerNickname;
         },
         voteToKill: function() {
                 getGameState().then(gameState => {
@@ -181,7 +209,7 @@ export default {
         </div>
     </div>
 
-    <div v-if="this.players">
+    <div v-if="this.players && !this.summarizingPhaseExecution">
         <hr />
 
         Use the following table to track the conditions of your fellow players.
@@ -271,5 +299,27 @@ export default {
                 </div>
             </div>
         </div>
+    </div>
+
+    <div v-if="this.summarizingPhaseExecution && this.phaseExecutionResults">
+        <!-- TODO: bind these values to this so that TimeOfDayDay can be resolved -->
+        <div v-if="this.phaseExecutionResults.timeOfDay == TimeOfDay.TimeOfDayDay">
+            <div v-if="this.phaseExecutionResults.convictedPlayer">
+                By majority vote, the people of the city have convicted {{ this.phaseExecutionResults.convictedPlayer }} of being a member of the Mafia.
+            </div>
+            <div v-if="!this.phaseExecutionResults.convictedPlayer">
+                The city could not come to a majority agreement on who is a member of the Mafia; the day passes without a conviction.
+            </div>
+        </div>
+        <div v-if="this.phaseExecutionResults.timeOfDay == TimeOfDay.TimeOfDayNight">
+            <div v-if="this.phaseExecutionResults.killedPlayer">
+                As the citizens of the city slept, the Mafia quietly conspired to end the life of {{  this.phaseExecutionResults.killedPlayer }}. The day dawns with one less person in the city.
+            </div>
+            <div v-if="!this.phaseExecutionResults.killedPlayer">
+                In a rare showing of mercy, the Mafia has not come to a majority vote of who should die. The day dawns with as many people as when it left.
+            </div>
+        </div>
+
+        <button type="submit" @click="this.beginNextPhase()" />
     </div>
 </template>
