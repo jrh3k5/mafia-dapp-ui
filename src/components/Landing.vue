@@ -73,14 +73,14 @@ export default {
 <template>
   <div v-if="!this.gameAlreadyInitialized">
     <button @click="hostGame">Host Game</button>
-    <p />
+    
     <button @click="joinGame">Join Game</button>
   </div>
   <div v-if="this.gameAlreadyInitialized">
     You are already running a game. Would you like to resume or cancel the existing game?
     <br />
     <button type="submit" @click="this.resumeHosting()">Resume Game</button>
-    <p />
+
     <button type="submit" @click="this.cancelGame()">Cancel Game</button>
   </div>
 </template>

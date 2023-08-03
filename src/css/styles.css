@@ -1,5 +1,46 @@
+html {
+    height: 100%;
+}
+
 body {
     background-image: url('../img/backdrop.png');
     background-repeat: repeat-x;
     background-color: #000;
+    margin: 0;
+    height: 100%;
+}
+
+div#app {
+    height: 100%;
+}
+
+div#main-content {
+    display: block;
+    margin-bottom: 0;
+    margin-top: 0;
+    margin-left: auto;
+    margin-right: auto;
+    width: 40%;
+    background-color: #b8b8b8;
+    height: 100%;
+
+    border-style: solid;
+    border-left-width: 15px;
+    border-right-width: 15px;
+    border-color: #101010;
+
+    text-align: center;
+
+    padding: 2em;
+}
+
+button {
+    font-size: xx-large;
+    margin: 2em;
+
+    padding: 1.5em;
+
+    transform: scale3d(0.25);
+    border: 5px solid black;
+    border-radius: 40px;
 }

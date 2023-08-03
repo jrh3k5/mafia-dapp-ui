@@ -35,5 +35,7 @@ export default {
 </script>
 
 <template>
-  <router-view></router-view>
+  <div id="main-content">
+    <router-view></router-view>
+  </div>
 </template>
