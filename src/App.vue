@@ -2,6 +2,7 @@
 import { initializeMafiaServiceProvider, getMafiaService } from './js/mafia_service.js'
 import { reportError } from './js/errors.js'
 import { getGameState } from './js/game_state.js'
+import './css/styles.css'
 
 export default {
   data() {
