@@ -24,7 +24,6 @@ class MafiaService {
     }
 
     cancelGame() {
-        // TODO: why does this issue an OPTIONS request?
         return axios.delete(`http://localhost:3000/game/${this.hostAddress}`)
     }
 

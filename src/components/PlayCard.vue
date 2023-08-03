@@ -8,6 +8,11 @@ import { resetGameState } from '../js/game_state.js'
 import * as PhaseOutcome from '../js/phase_outcome.js'
 import * as TimeOfDay from '../js/time_of_day'
 
+// TODO: replace alert prompt for when someone is killed or convicted
+// TODO: automatically tick someone as dead or evicted
+// TODO: disable row if a player is killed or convicted
+// TODO: don't let someone who's dead or convicted have a usable play card (just take them to a 'you are out' page?)
+
 export default {
     data() {
         return {
@@ -63,8 +68,7 @@ export default {
             const [phaseOutcome, timeOfDay, playersKilled, playersConvicted] = resolutionArgs;
             switch (phaseOutcome) {
                 case PhaseOutcome.PhaseOutcomeCivilianVictory:
-                    // TODO: take the user to a page letting them know that the civilians won
-                    alert("The civilians won!");
+                    this.$router.push('/game/victory/civilian');
                     return;
                 case PhaseOutcome.PhaseOutcomeMafiaVictory:
                     this.$router.push('/game/victory/mafia');
@@ -236,7 +240,7 @@ export default {
             </div>
         </div>
         <div v-if="this.isNight">
-            it's night time!
+            It's night time!
 
             <div v-if="this.isCivilian">
                 Keep your eyes closed! It's now the Mafia's chance to try and eliminate someone they think is a threat to them - better hope it wasn't you!
@@ -258,7 +262,7 @@ export default {
 
                     <p />
 
-                    <button type="submit" @click="this.accuse()" :disabled="!this.mafiaAccusation">Accuse Player</button>
+                    <button type="submit" @click="this.accuse()" :disabled="!this.mafiaAccusation">Vote to Kill</button>
                 </div>
                 <div v-if="this.waitingForMurder">
                     Your vote to kill a player has been submitted. Wait for the round timer to complete and the host to tally the kill votes.
