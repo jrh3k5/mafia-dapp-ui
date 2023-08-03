@@ -172,11 +172,13 @@ export default {
 </script>
 
 <template>
-    <div v-if="this.isMafia">
-        You are MAFIA.
-    </div>
-    <div v-if="this.isCivilian">
-        You are a CIVILIAN.
+    <div class="player-role">
+        <div v-if="this.isMafia">
+            <img class="player-role-profile-pic" src="../img/mafia.png" /> You are MAFIA.
+        </div>
+        <div v-if="this.isCivilian">
+            <img class="player-role-profile-pic" src="../img/civilian.png" /> You are a CIVILIAN.
+        </div>
     </div>
 
     <div v-if="this.players">

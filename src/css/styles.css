@@ -119,3 +119,16 @@ table thead tr th:last-of-type,
 table tbody tr td:last-of-type {
     border-right-width: 0;
 }
+
+div.player-role {
+    text-align: left;
+}
+
+img.player-role-profile-pic {
+    max-width: 100px;
+    border-radius: 50%;
+    border-style: solid;
+    border-color: #000;
+    border-width: 5px;
+    background: #D1D1D1;
+}
