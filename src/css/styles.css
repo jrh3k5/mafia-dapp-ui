@@ -83,6 +83,14 @@ input:read-only {
     border-color: gray;
 }
 
+input.death-tracker {
+    pointer-events: none;
+}
+
+input.conviction-tracker {
+    pointer-events: none;
+}
+
 label {
     font-size: xx-large;
     padding-top: 1em;

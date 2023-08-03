@@ -215,7 +215,7 @@ export default {
     <hr />
 
     <div v-if="this.players && !this.summarizingPhaseExecution && this.canPlay()">
-        Use the following table to track the conditions of your fellow players. It will be automatically populated as players are killed or convicted.
+        Use the following table to track the conditions of your fellow players. It will be automatically populate as players are killed or convicted.
 
         <table>
             <thead>
@@ -228,8 +228,8 @@ export default {
             <tbody>
                 <tr v-for="player in this.getOtherPlayers()">
                     <td>{{ player.playerNickname }}</td>
-                    <td><input type="radio" v-model="player.dead" readonly disabled /></td>
-                    <td><input type="radio" v-model="player.convicted" readonly disabled /></td>
+                    <td><input type="checkbox" class="death-tracker" v-model="player.dead" readonly /></td>
+                    <td><input type="checkbox" class="conviction-tracker" v-model="player.convicted" readonly /></td>
                 </tr> 
             </tbody>
         </table>
