@@ -8,12 +8,12 @@ import Landing from './components/Landing.vue'
 import PlayCard from './components/PlayCard.vue'
 import MafiaVictory from './components/MafiaVictory.vue'
 import CivilianVictory from './components/CivilianVictory.vue'
+import Root from './components/Root.vue'
 
 const router = createRouter({
     history: createWebHistory(),
     routes: [
-        // TODO: make this land on a wallet connection screen
-        { path: '/', component: Landing },
+        { path: '/', component: Root },
         { path: '/landing', component: Landing },
         { path: '/game/host', component: HostGame },
         { path: '/game/join', component: JoinGame },

@@ -8,11 +8,6 @@ import { resetGameState } from '../js/game_state.js'
 import * as PhaseOutcome from '../js/phase_outcome.js'
 import * as TimeOfDay from '../js/time_of_day'
 
-// TODO: replace alert prompt for when someone is killed or convicted
-// TODO: automatically tick someone as dead or evicted
-// TODO: disable row if a player is killed or convicted
-// TODO: don't let someone who's dead or convicted have a usable play card (just take them to a 'you are out' page?)
-
 export default {
     data() {
         return {
