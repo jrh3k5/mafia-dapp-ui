@@ -113,7 +113,14 @@ export default {
                 this.isDay = false;
                 this.isNight = true;
 
-                // TODO: if player is convicted of Mafia, don't let them play anymore
+                // If the player is a civilian, then queue them up to wait for the night phase to finish
+                if (this.isCivilian && !this.isHosting) {
+                    getGameState().then(gameState => {
+                        getMafiaService().then(mafiaService => {
+                            mafiaService.waitForPhaseExecution(gameState.getHostAddress()).then(this.handlePhaseExecution).catch(err => reportError("Failed to wait for phase execution", err));
+                        }).catch(err => reportError("Failed to get Mafia service while preparing to wait for phase execution", err));
+                    }).catch(err => reportError("Failed to get game state while preparing to wait for phase execution", err));
+                }
             } else if (timeOfDay == TimeOfDay.TimeOfDayNight) {
                 if(playersKilled) {
                     playersKilled.forEach(playerAddress => {
@@ -134,8 +141,6 @@ export default {
 
                 this.isNight = false;
                 this.isDay = true;
-
-                // TODO: if player is dead, don't let them play anymore
             }
 
             this.summarizingPhaseExecution = true;
@@ -278,7 +283,9 @@ export default {
             <div v-if="this.isCivilian">
                 Keep your eyes closed! It's now the Mafia's chance to try and eliminate someone they think is a threat to them - better hope it wasn't you!
                 <p v-if="this.isHosting">
-                    Start a timer for one minute to give the Mafia enough time to coordinate and identify who to kill.
+                    Start a timer for one minute to give the Mafia enough time to coordinate and identify who to kill. When the timer is up, click the button below to proceed.
+
+                    <button type="submit" @click="this.executePhase()">Continue</button>
                 </p>
             </div>
             <div v-if="this.isMafia">
@@ -307,21 +314,21 @@ export default {
                         <button type="submit" @click="this.executePhase()">Continue</button>
                     </div>
                 </div>
-                <div v-if="!this.isMafia && this.isHosting">
-                    You are not the Mafia! Start a timer long enough to allow the Mafia to decide who to kill and, when the timer is up, click the button below to proceed.
-
-                    <button type="submit" @click="this.executePhase()">Continue</button>
-                </div>
             </div>
         </div>
     </div>
 
     <div v-if="this.players && !this.summarizingPhaseExecution && !this.canPlay()">
         You are, unfortunately, unable to continue playing the game. From here on out, give your fellow teammates the moral support they need for victory!
+
+        <div v-if="this.isHosting">
+            As host, however, you must ensure that each phase is executed. Once the round phase is ready to resolve, click the button below.
+
+            <button type="submit" @click="this.executePhase()">Continue</button>
+        </div>
     </div>
 
     <div v-if="this.summarizingPhaseExecution && this.phaseExecutionResults">
-        <!-- TODO: bind these values to this so that TimeOfDayDay can be resolved -->
         <div v-if="this.phaseExecutionResults.timeOfDay == this.timeOfDayEnum.TimeOfDayDay">
             <div v-if="this.phaseExecutionResults.convictedPlayer">
                 By majority vote, the people of the city have convicted {{ this.phaseExecutionResults.convictedPlayer }} of being a member of the Mafia.
