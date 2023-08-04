@@ -1,14 +1,8 @@
-# mafia-dapp
+# Mafia Dapp UI
 
-This template should help get you started developing with Vue 3 in Vite.
+This is a UI for interacting with the [Mafia Dapp](https://github.com/jrh3k5/mafia-dapp).
 
-## Recommended IDE Setup
-
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+For development purposes, it also supports running against the [Mafia Dapp HTTP backend](https://github.com/jrh3k5/mafia-dapp-http).
 
 ## Project Setup
 
@@ -18,8 +12,16 @@ npm install
 
 ### Compile and Hot-Reload for Development
 
+The following will run this locally to be used against an instance of Hardhat:
+
 ```sh
 npm run dev
+```
+
+To run against the HTTP backend, do the following:
+
+```sh
+export MAFIA_BACKEND=http && npm run dev
 ```
 
 ### Compile and Minify for Production

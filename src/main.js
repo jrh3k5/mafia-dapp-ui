@@ -12,6 +12,8 @@ import CivilianVictory from './components/CivilianVictory.vue'
 const router = createRouter({
     history: createWebHistory(),
     routes: [
+        // TODO: make this land on a wallet connection screen
+        { path: '/', component: Landing },
         { path: '/landing', component: Landing },
         { path: '/game/host', component: HostGame },
         { path: '/game/join', component: JoinGame },

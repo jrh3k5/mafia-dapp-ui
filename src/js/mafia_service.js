@@ -23,27 +23,29 @@ export function setMafiaServiceProvider(provider) {
 }
 
 export function initializeMafiaServiceProvider() {
-    if (process.env.NODE_ENV === "development") {
-        setMafiaServiceProvider(getMafiaHTTPService)
-
-        setGameStateProvider(getInMemoryGameStateProvider())
-
-        return new Promise(resolve => resolve())
+    if (process.env.NODE_ENV === "development" && process.env.MAFIA_BACKEND === "http") {
+        setMafiaServiceProvider(getMafiaHTTPService);
+        setGameStateProvider(getInMemoryGameStateProvider());
+        return new Promise(resolve => resolve());
     } else {
-        ethereum.request({ method: 'eth_requestAccounts' }).then(accounts => {
-          const provider = new ethers.BrowserProvider(ethereum);
-          const walletAddress = window.ethereum.selectedAddress;
-          provider.getSigner(walletAddress).then(signer => {
-            // TODO: read selected network and choose the correct contract address
-            const contractAddress = Hardhat.ContractAddress;
-  
-            initializeMafiaContract(contractAddress, signer);
+        return new Promise((resolve, reject) => {
+            ethereum.request({ method: 'eth_requestAccounts' }).then(() => {
+              const provider = new ethers.BrowserProvider(ethereum);
+              const walletAddress = window.ethereum.selectedAddress;
+              provider.getSigner(walletAddress).then(signer => {
+                // TODO: read selected network and choose the correct contract address
+                const contractAddress = Hardhat.ContractAddress;
+      
+                initializeMafiaContract(contractAddress, signer);
+    
+                setGameStateProvider(getLocalStorageGameStateProvider())
+    
+                setMafiaServiceProvider(getMafiaContract);
 
-            setGameStateProvider(getLocalStorageGameStateProvider())
-
-            setMafiaServiceProvider(getMafiaContract);
-          }).catch(err => reportError("Failed to get signer", err));
-        }).catch(err => reportError("Failed to get wallet address; please try again", err));
+                resolve();
+              }).catch(reject);
+            }).catch(reject);
+        })
     }
 }
 
