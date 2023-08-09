@@ -10,6 +10,10 @@ body {
     height: 100%;
 }
 
+ul {
+    text-align: left;
+}
+
 div#app {
     height: 100%;
 }
