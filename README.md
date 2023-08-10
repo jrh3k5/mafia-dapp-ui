@@ -26,6 +26,16 @@ export MAFIA_BACKEND=http && npm run dev
 
 ### Compile and Minify for Production
 
+The following builds into the `dist/` folder a distributable version of the website:
+
 ```sh
 npm run build
+```
+
+#### Run Production Locally
+
+Run the following to build the production distribution and run it locally (useful for testing the Base Goerli Testnet integration):
+
+```
+npm run build && npx serve dist
 ```

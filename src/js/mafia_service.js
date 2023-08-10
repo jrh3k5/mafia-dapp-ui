@@ -1,10 +1,11 @@
 import { getMafiaHTTPService } from './mafia_service_http.js'
-import { getMafiaContract, initializeMafiaContract } from './mafia_service_contract.js'
+import { getMafiaContractProvider } from './mafia_service_contract.js'
 import { getInMemoryGameStateProvider } from './game_state_in_memory.js'
 import { getLocalStorageGameStateProvider } from './game_state_local_storage.js'
-import { Hardhat } from './networks.js'
+import { BaseGoerliTestnet, Hardhat } from './networks.js'
 import { setGameStateProvider } from './game_state.js'
 import { ethers } from 'ethers'
+import { isDevelopment } from './environment.js'
 
 let mafiaServiceProvider
 
@@ -23,7 +24,7 @@ export function setMafiaServiceProvider(provider) {
 }
 
 export function initializeMafiaServiceProvider() {
-    if (process.env.NODE_ENV === "development" && process.env.MAFIA_BACKEND === "http") {
+    if (isDevelopment() && process.env.MAFIA_BACKEND === "http") {
         setMafiaServiceProvider(getMafiaHTTPService);
         setGameStateProvider(getInMemoryGameStateProvider());
         return new Promise(resolve => resolve());
@@ -32,15 +33,33 @@ export function initializeMafiaServiceProvider() {
             ethereum.request({ method: 'eth_requestAccounts' }).then(() => {
               const provider = new ethers.BrowserProvider(ethereum);
               const walletAddress = window.ethereum.selectedAddress;
-              provider.getSigner(walletAddress).then(signer => {
-                // TODO: read selected network and choose the correct contract address
-                const contractAddress = Hardhat.ContractAddress;
-      
-                initializeMafiaContract(contractAddress, signer);
-    
+              
+              const hardhatChainID = 31337n;
+              const baseGoerliChainID = 84531n;
+        
+              let requestedChainID = baseGoerliChainID;
+              let contractAddress = BaseGoerliTestnet.ContractAddress;
+              if (isDevelopment()) {
+                requestedChainID = hardhatChainID
+                contractAddress = Hardhat.ContractAddress;
+              }
+
+              provider.getNetwork().then(network => {
+                let contractAddress;
+                switch (network.chainId) {
+                    case hardhatChainID:
+                        contractAddress = Hardhat.ContractAddress;
+                        break;
+                    case baseGoerliChainID:
+                        contractAddress = BaseGoerliTestnet.ContractAddress;
+                        break;
+                    default:
+                        reject(`unhandled chain ID selected in wallet; please switch to Base Goerli testnet in your wallet: ${network.chainId}`);
+                }
+
                 setGameStateProvider(getLocalStorageGameStateProvider())
     
-                setMafiaServiceProvider(getMafiaContract);
+                setMafiaServiceProvider(getMafiaContractProvider(provider, walletAddress, contractAddress));
 
                 resolve();
               }).catch(reject);

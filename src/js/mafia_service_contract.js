@@ -1,45 +1,27 @@
-import { Contract } from 'ethers'
 import { GameAlreadyInitialized, GameStarted } from './errors.js'
-import { getGameState } from './game_state.js';
 import * as PlayerRole from './player_role.js'
-import { ethers } from 'ethers'
 import * as PhaseOutcome from './phase_outcome.js'
 import * as TimeOfDay from './time_of_day.js'
+import { Contract } from 'ethers'
 
-let mafiaContract;
-
-// getMafiaContract gets a MafiaContract, if it has been initialized, for interacting with the Mafia dapp.
-// This returns a Promise that either resolves to an instance of MafiaContract or fails with the cause of an error.
-export function getMafiaContract() {
-  return new Promise((resolve, reject) => {
-    if(mafiaContract) {
-      resolve(mafiaContract);
-      return;
-    }
-    
-    // Try to re-initialize it from game state
-    getGameState().then(gameState => {
-      if (!gameState) {
-        reject('Mafia contract has not been initialized');
+// getMafiaContractProvider gets a Promise that can resolve to a MafiaContract instance.
+export function getMafiaContractProvider(ethersProvider, playerAddress, contractAddress) {
+  let mafiaContractHolder;
+  return function() {
+    return new Promise((resolve, reject) => {
+      if(mafiaContractHolder) {
+        resolve(mafiaContractHolder);
         return;
       }
   
-      const userAddress = gameState.getPlayerAddress();
-      const provider = new ethers.BrowserProvider(ethereum);
-      provider.getSigner(userAddress).then(signer => {
-        const mafiaContract = initializeMafiaContract(gameState.getContractAddress(), signer);
+      ethersProvider.getSigner(playerAddress).then(signer => {
+        const ethersContract = new Contract(contractAddress, mafiaABI, signer);
+        const mafiaContract = new MafiaContract(ethersContract, playerAddress);
+        mafiaContractHolder = mafiaContract;
         resolve(mafiaContract);
       }).catch(reject);
-    }).catch(reject);
-  })
-}
-
-// initializeMafiaContract sets the Mafia contract instancce to be used by the application.
-// This returns the initialized MafiaContract instance.
-export function initializeMafiaContract(contractAddress, signer) {
-  const contract = new Contract(contractAddress, mafiaABI, signer)
-  mafiaContract = new MafiaContract(contract, signer.address);
-  return mafiaContract;
+    })
+  }
 }
 
 class MafiaContract {
