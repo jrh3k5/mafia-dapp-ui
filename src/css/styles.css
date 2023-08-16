@@ -144,3 +144,13 @@ img.player-role-profile-pic {
     border-width: 5px;
     background: #D1D1D1;
 }
+
+div.error {
+    color: red;
+    background-color: pink;
+    border-color: red;
+    border-style: solid;
+    padding: 1em;
+    /* TODO: why is this needed to show the error message? */
+    margin-top: 50px;
+}
