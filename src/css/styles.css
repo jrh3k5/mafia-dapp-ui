@@ -151,6 +151,4 @@ div.error {
     border-color: red;
     border-style: solid;
     padding: 1em;
-    /* TODO: why is this needed to show the error message? */
-    margin-top: 50px;
 }

@@ -1,6 +1,7 @@
 <script>
 import { addErrorHandler } from './js/errors.js'
 import './css/styles.css'
+import { clearError } from './js/errors.js'
 
 export default {
   mounted() {
@@ -11,12 +12,18 @@ export default {
       }
       return true;
     })
+
+console.log("this.$router", this.$router);
+
+    this.$router.afterEach(() => {
+      clearError();
+    })
   },
   data(){
     return {
       errorMessage: null,
     }
-  }
+  },
 }
 </script>
 
