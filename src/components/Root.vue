@@ -1,7 +1,8 @@
 <script>
 import { initializeMafiaServiceProvider, getMafiaService } from '../js/mafia_service.js'
-import { reportError } from '../js/errors.js'
+import { reportError, UnsupportedChain } from '../js/errors.js'
 import { getGameState } from '../js/game_state.js'
+import { getSupportedChains } from '../js/networks.js'
 
 export default {
     methods: {
@@ -15,11 +16,22 @@ export default {
                             gameState.setContractAddress(contractAddress);
                             gameState.setPlayerAddress(playerID);
 
-                            this.$router.push('/landing');
+                            this.$router.push('./landing');
                         }).catch(err => reportError("Failed to get game state", err));
                     }).catch(err => reportError("Failed to get contract address and/or player ID", err));
                 }).catch(err => reportError("Failed to get Mafia service", err));
-            }).catch(err => reportError("Failed to initialize Mafia service provider", err));
+            }).catch(err => {
+                if (err instanceof UnsupportedChain) {
+                    const supportedChainNames = err.supportedChains.map(supportedChain => `'${supportedChain.name}'`);
+                    if (supportedChainNames.length === 1) {
+                        reportError(`Currently-selected chain is not supported; please select the ${supportedChainNames[0]} chain to continue and then click 'Connect Wallet' again`)
+                    } else {
+                        reportError(`Currently-selected chain is not supported; please select one of the following chains and then click 'Connect Wallet' again: ${supportedChainNames}`)
+                    }
+                } else {
+                    reportError("Failed to initialize Mafia service provider; check console for more details", err)
+                }
+            });
         }
     }
 }
