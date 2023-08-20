@@ -45,10 +45,10 @@ export default {
         beginNextPhase: function() {
             switch (this.phaseExecutionResults.phaseOutcome) {
                 case PhaseOutcome.PhaseOutcomeCivilianVictory:
-                    this.$router.push('./game/victory/civilian');
+                    this.$router.push({ name: 'CivilianVictory' });
                     return;
                 case PhaseOutcome.PhaseOutcomeMafiaVictory:
-                    this.$router.push('./game/victory/mafia');
+                    this.$router.push({ name: 'MafiaVictory' });
                     return;
                 default:
                     this.summarizingPhaseExecution = false;
@@ -176,7 +176,7 @@ export default {
             if (!hostAddress) {
                 reportError("No host address could be retrieved from the game state; you will be taken to the main page now to restart your game", null);
                 resetGameState();
-                this.$router.push('./landing');
+                this.$router.push({ name: 'Landing' });
                 return;
             }
 

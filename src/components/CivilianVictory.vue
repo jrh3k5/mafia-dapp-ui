@@ -15,13 +15,13 @@ export default {
             getMafiaService().then(mafiaService => {
                 mafiaService.finishGame().then(() => {
                     clearGameState();
-                    this.$router.push('./');
+                    this.$router.push({ name: 'Root' });
                 }).catch(err => reportError("Failed to finish game", err));
             }).catch(reportGetContractError);
         },
         playAgain: function() {
             clearGameState();
-            this.$router.push('./');
+            this.$router.push({ name: 'Root' });
         },
     },
 

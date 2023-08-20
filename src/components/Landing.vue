@@ -16,7 +16,7 @@ export default {
         mafiaService.cancelGame().then(() => {
           this.gameAlreadyInitialized = false;
           resetGameState();
-          this.$router.push('./landing');
+          this.$router.push({ name: 'Landing' });
         }).catch(err => reportError("Failed to cancel existing game", err));
       }).catch(reportGetContractError);
     },
@@ -27,7 +27,7 @@ export default {
             gameState.setIsHosting(true);
             gameState.setIsPlaying(false);
             gameState.setHostAddress(gameState.getPlayerAddress());
-            this.$router.push('./game/join');
+            this.$router.push({ name: 'JoinGame' });
           }).catch(err => reportError("Failed to get game state on hosting of game", err))
         }).catch(err => {
           if (err === GameAlreadyInitialized) {
@@ -42,7 +42,7 @@ export default {
       getGameState().then(gameState => {
         gameState.setIsHosting(false);
         gameState.setIsPlaying(true);
-        this.$router.push('./game/join');
+        this.$router.push({ name: 'JoinGame' });
       }).catch(err => reportError("Failed to get game state on joining game", err))
     },
     resumeHosting: function() {
@@ -51,7 +51,7 @@ export default {
         gameState.setIsPlaying(false);
         gameState.setHostAddress(gameState.getPlayerAddress());
         gameState.setHasJoined(true);
-        this.$router.push('./game/play');
+        this.$router.push({ name: 'PlayCard' });
       }).catch(err => reportError("Failed to get game state while resuming game", err))
     }
   },
@@ -60,10 +60,10 @@ export default {
     getGameState().then(gameState => {
       if (gameState.isHosting()) {
         // go ahead and automatically take the user to the hosting page
-        this.$router.push('./game/host');
+        this.$router.push({ name: 'HostGame' });
       } else if (gameState.isPlaying()) {
         // if the user is playing, then they are trying to join a game
-        this.$router.push('./game/join');
+        this.$router.push({ name: 'JoinGame' });
       }
     }).catch(err => reportError("Failed to get game state on initialization", err))
   }

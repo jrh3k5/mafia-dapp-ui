@@ -16,7 +16,7 @@ export default {
                             gameState.setContractAddress(contractAddress);
                             gameState.setPlayerAddress(playerID);
 
-                            this.$router.push('./landing');
+                            this.$router.push({ name: 'Landing' });
                         }).catch(err => reportError("Failed to get game state", err));
                     }).catch(err => reportError("Failed to get contract address and/or player ID", err));
                 }).catch(err => reportError("Failed to get Mafia service", err));

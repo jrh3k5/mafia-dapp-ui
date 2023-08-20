@@ -13,13 +13,13 @@ import Root from './components/Root.vue'
 const router = createRouter({
     history: createWebHistory('/mafia-dapp-ui'),
     routes: [
-        { path: '/', component: Root },
-        { path: '/landing', component: Landing },
-        { path: '/game/host', component: HostGame },
-        { path: '/game/join', component: JoinGame },
-        { path: '/game/play', component: PlayCard },
-        { path: '/game/victory/mafia', component: MafiaVictory },
-        { path: '/game/victory/civilian', component: CivilianVictory },
+        { name: 'Root', path: '/', component: Root },
+        { name: 'Landing', path: '/landing', component: Landing },
+        { name: 'HostGame', path: '/game/host', component: HostGame },
+        { name: 'JoinGame', path: '/game/join', component: JoinGame },
+        { name: 'PlayCard', path: '/game/play', component: PlayCard },
+        { name: 'MafiaVictory', path: '/game/victory/mafia', component: MafiaVictory },
+        { name: 'CivilianVictory', path: '/game/victory/civilian', component: CivilianVictory },
     ]
 });
 
