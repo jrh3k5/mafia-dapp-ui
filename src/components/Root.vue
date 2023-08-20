@@ -2,11 +2,13 @@
 import { initializeMafiaServiceProvider, getMafiaService } from '../js/mafia_service.js'
 import { reportError, UnsupportedChain } from '../js/errors.js'
 import { getGameState } from '../js/game_state.js'
-import { getSupportedChains } from '../js/networks.js'
+import { setLoading } from '../js/loading.js'
 
 export default {
     methods: {
         connectWallet: function() {
+            setLoading(true);
+
             initializeMafiaServiceProvider().then(() => {
                 getMafiaService().then(mafiaService => {
                     Promise.all([mafiaService.getContractAddress(), mafiaService.getPlayerID()]).then(args => {
@@ -17,7 +19,8 @@ export default {
                             gameState.setPlayerAddress(playerID);
 
                             this.$router.push({ name: 'Landing' });
-                        }).catch(err => reportError("Failed to get game state", err));
+                        }).catch(err => reportError("Failed to get game state", err))
+                          .finally(() => setLoading(false));
                     }).catch(err => reportError("Failed to get contract address and/or player ID", err));
                 }).catch(err => reportError("Failed to get Mafia service", err));
             }).catch(err => {
