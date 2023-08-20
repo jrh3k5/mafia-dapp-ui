@@ -66,11 +66,6 @@ export class GameState {
         return !!this.hosting;
     }
 
-    // isPlaying is the counterpart to isHosting, indicating that a user has at least attempted to join a game
-    isPlaying() {
-        return !!this.playing;
-    }
-
     // isStarted returns true if the game has started
     isStarted() {
         return !!this.started;

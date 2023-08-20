@@ -57,21 +57,6 @@ export default {
       }).catch(err => reportError("Failed to get game state on joining game", err))
         .finally(() => setLoading(false));
     }
-  },
-
-  mounted() {
-    setLoading(true);
-
-    getGameState().then(gameState => {
-      if (gameState.isHosting()) {
-        // go ahead and automatically take the user to the hosting page
-        this.$router.push({ name: 'HostGame' });
-      } else if (gameState.isPlaying()) {
-        // if the user is playing, then they are trying to join a game
-        this.$router.push({ name: 'JoinGame' });
-      }
-    }).catch(err => reportError("Failed to get game state on initialization", err))
-      .finally(() => setLoading(false));
   }
 }
 </script>
@@ -86,7 +71,7 @@ export default {
     You are already running a game. Please cancel the existing game if you would like to start a game.
     
     <p />
-    
+
     <button type="submit" @click="this.cancelGame()">Cancel Game</button>
   </div>
 </template>
