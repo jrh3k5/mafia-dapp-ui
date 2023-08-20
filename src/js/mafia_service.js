@@ -1,7 +1,6 @@
 import { getMafiaHTTPService } from './mafia_service_http.js'
 import { getMafiaContractProvider } from './mafia_service_contract.js'
 import { getInMemoryGameStateProvider } from './game_state_in_memory.js'
-import { getLocalStorageGameStateProvider } from './game_state_local_storage.js'
 import { getSupportedChains } from './networks.js'
 import { setGameStateProvider } from './game_state.js'
 import { ethers } from 'ethers'
@@ -53,7 +52,7 @@ export function initializeMafiaServiceProvider() {
                         return
                     }
 
-                    setGameStateProvider(getLocalStorageGameStateProvider())
+                    setGameStateProvider(getInMemoryGameStateProvider());
         
                     setMafiaServiceProvider(getMafiaContractProvider(provider, walletAddress, contractAddress));
     

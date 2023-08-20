@@ -62,20 +62,6 @@ export default {
                     }
                 });
             }).catch(reportGetContractError)
-        },
-        resumeGame: function() {
-            setLoading(true);
-
-            getGameState().then(gameState => {
-                gameState.setHostAddress(this.hostAddress);
-                gameState.setHasJoined(true);
-                if (gameState.isHosting()) {
-                    this.$router.push({ name: 'PlayCard' });
-                } else {
-                    this.$router.push({ name: 'PlayCard' });
-                }
-            }).catch(err => reportError("Failed to get game state while resuming game", err))
-              .finally(() => setLoading(false));
         }
     },
 
@@ -86,12 +72,6 @@ export default {
             this.userIsHost = gameState.isHosting();
             if (this.userIsHost) {
                 this.hostAddress = gameState.getPlayerAddress();
-            }
-
-            // if they've already joined a game, then skip this step
-            if (gameState.hasJoined()) {
-                // TODO: handle when the game has not yet been started
-                this.$router.push({ name: 'PlayCard' });
             }
         }).catch(err => reportError("Failed to get game state on initialization", err))
           .finally(() => setLoading(false));
@@ -118,10 +98,8 @@ export default {
         </div>
     </div>
     <div v-if="this.gameAlreadyStarted">
-        You are already participating in a game; do you wish to resume it?
+        This game has already started and cannot be joined.
         
-        <button type="submit" @click="this.resumeGame()">Resume Game</button>
-
         <button type="submit" @click="this.cancel()">Cancel</button>
     </div>
 </template>

@@ -6,7 +6,7 @@ export function getInMemoryGameStateProvider() {
 
 class InMemoryGameStateProvider {
     constructor() {
-        this.gameState = new GameState("", "", this);
+        this.gameState = new GameState("", this);
     }
 
     clearGameState() {
@@ -30,7 +30,7 @@ class InMemoryGameStateProvider {
             return;
         }
 
-        this.gameState = new GameState(this.gameState.getContractAddress(), this.gameState.getPlayerAddress(), this);
+        this.gameState = new GameState(this.gameState.getPlayerAddress(), this);
     }
 
     storeGameState(gameState) {
