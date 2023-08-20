@@ -2,6 +2,7 @@
 import { getMafiaService } from '../js/mafia_service.js'
 import { getGameState, resetGameState } from '../js/game_state.js'
 import { GameStarted, reportError, reportGetContractError } from '../js/errors.js'
+import { setLoading } from '../js/loading.js'
 
 export default {
   data() {
@@ -13,22 +14,30 @@ export default {
 
   methods: {
     cancelGame: function() {
+      setLoading(true);
+
       getMafiaService().then(mafiaService => {
         mafiaService.cancelGame().then(() => {
           resetGameState();
           this.$router.push({ name: 'Landing' });
-        }).catch(err => reportError("Failed to cancel game", err));
+        }).catch(err => reportError("Failed to cancel game", err))
+          .finally(() => setLoading(false));
       }).catch(reportGetContractError)
     },
     startGame: function() {
+      setLoading(true);
+
       getMafiaService().then(mafiaService => {
         mafiaService.startGame(this.expectedPlayerCount).then(() => {
           getGameState().then(gameState => {
             gameState.setIsStarted(true);
             this.$router.push({ name: 'PlayCard' });
           }).catch(err => reportError("Failed to get game state", err))
+            .finally(() => setLoading(false));
         }).catch(err => {
           if (err === GameStarted) {
+            // Clear the loading indicator so that the user can select whether to cancel or resume the game
+            setLoading(false);
             this.gameAlreadyStarted = true;
           } else {
             reportError("Failed to start game", err);
@@ -37,20 +46,26 @@ export default {
       }).catch(reportGetContractError);
     },
     resumeGame: function() {
+      setLoading(true);
+
       getGameState().then(gameState => {
         gameState.setIsStarted(true)
         this.$router.push({ name: 'PlayCard' });
       }).catch(err => reportError("Failed to get game state on resumption", err))
+        .finally(() => setLoading(false));
     }
   },
 
   mounted() {
+    setLoading(true);
+
     getGameState().then(gameState => {
       if (gameState.isStarted()) {
       // if the game has already been started, then go ahead and take the user to the play card
       this.$router.push({ name: 'PlayCard' });
       }
     }).catch(err => reportError("Failed to get game state on initialization", err))
+      .finally(() => setLoading(false));
   }
 }
 </script>

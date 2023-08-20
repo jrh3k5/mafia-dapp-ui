@@ -2,6 +2,7 @@
 import { addErrorHandler } from './js/errors.js'
 import './css/styles.css'
 import { clearError } from './js/errors.js'
+import { addLoadingHandler, setLoading } from './js/loading.js'
 
 export default {
   mounted() {
@@ -10,15 +11,34 @@ export default {
       if (err) {
         console.error(err);
       }
+      
+      setLoading(false);
+
       return true;
     })
 
+    addLoadingHandler(isLoading => {
+      if (isLoading) {
+        if (this.loader) {
+          // don't show the loader again - it's already displayed
+          return;
+        }
+
+        this.loader = this.$loading.show({});
+      } else if(this.loader) {
+        this.loader.hide();
+        this.loader = null;
+      }
+    })
+
     this.$router.afterEach(() => {
+      // Make sure errors don't hang around between pages
       clearError();
     })
   },
   data(){
     return {
+      loader: null,
       errorMessage: null,
     }
   },

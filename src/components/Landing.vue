@@ -2,6 +2,7 @@
 import { getGameState, resetGameState } from '../js/game_state.js'
 import { getMafiaService } from '../js/mafia_service.js'
 import { GameAlreadyInitialized, reportError, reportGetContractError } from '../js/errors.js'
+import { setLoading } from '../js/loading.js'
 
 export default {
   data() {
@@ -12,15 +13,20 @@ export default {
 
   methods: {
     cancelGame: function() {
+      setLoading(true);
+      
       getMafiaService().then(mafiaService => {
         mafiaService.cancelGame().then(() => {
           this.gameAlreadyInitialized = false;
           resetGameState();
           this.$router.push({ name: 'Landing' });
-        }).catch(err => reportError("Failed to cancel existing game", err));
+        }).catch(err => reportError("Failed to cancel existing game", err))
+          .finally(() => setLoading(false));
       }).catch(reportGetContractError);
     },
     hostGame: function() {
+      setLoading(true);
+
       getMafiaService().then(mafiaService => {
         mafiaService.initializeGame().then(() => {
           getGameState().then(gameState => {
@@ -29,8 +35,11 @@ export default {
             gameState.setHostAddress(gameState.getPlayerAddress());
             this.$router.push({ name: 'JoinGame' });
           }).catch(err => reportError("Failed to get game state on hosting of game", err))
+            .finally(() => setLoading(false));
         }).catch(err => {
           if (err === GameAlreadyInitialized) {
+            // clear the loading indicator so that the user isn't stuck
+            setLoading(false);
             this.gameAlreadyInitialized = true;
           } else {
             reportError("Failed to initialize the game", err)
@@ -39,13 +48,18 @@ export default {
       }).catch(reportGetContractError);
     },
     joinGame: function() {
+      setLoading(true);
+
       getGameState().then(gameState => {
         gameState.setIsHosting(false);
         gameState.setIsPlaying(true);
         this.$router.push({ name: 'JoinGame' });
       }).catch(err => reportError("Failed to get game state on joining game", err))
+        .finally(() => setLoading(false));
     },
     resumeHosting: function() {
+      setLoading(true);
+
       getGameState().then(gameState => {
         gameState.setIsHosting(true);
         gameState.setIsPlaying(false);
@@ -53,10 +67,13 @@ export default {
         gameState.setHasJoined(true);
         this.$router.push({ name: 'PlayCard' });
       }).catch(err => reportError("Failed to get game state while resuming game", err))
+        .finally(() => setLoading(false));
     }
   },
 
   mounted() {
+    setLoading(true);
+
     getGameState().then(gameState => {
       if (gameState.isHosting()) {
         // go ahead and automatically take the user to the hosting page
@@ -66,6 +83,7 @@ export default {
         this.$router.push({ name: 'JoinGame' });
       }
     }).catch(err => reportError("Failed to get game state on initialization", err))
+      .finally(() => setLoading(false));
   }
 }
 </script>
