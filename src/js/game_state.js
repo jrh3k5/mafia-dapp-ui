@@ -39,18 +39,12 @@ export function setGameStateProvider(givenProvider) {
 }
 
 export class GameState {
-    constructor(contractAddress, playerAddress, gameStateStorage) {
+    constructor(playerAddress, gameStateStorage) {
         if (!gameStateStorage) {
             throw "a game state storage mechanism must be provided";
         }
-        this.contractAddress = contractAddress;
         this.playerAddress = playerAddress;
         this.gameStateStorage = gameStateStorage;
-    }
-
-    // getContractAddress gets the address of the contract instance of the game
-    getContractAddress() {
-        return this.contractAddress;
     }
 
     getHostAddress() {
@@ -70,11 +64,6 @@ export class GameState {
     // isHosting returns true if the user has selected to host a game
     isHosting() {
         return !!this.hosting;
-    }
-
-    // isPlaying is the counterpart to isHosting, indicating that a user has at least attempted to join a game
-    isPlaying() {
-        return !!this.playing;
     }
 
     // isStarted returns true if the game has started

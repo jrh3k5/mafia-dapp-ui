@@ -1,12 +1,13 @@
 <script>
 import { getMafiaService } from '../js/mafia_service.js'
 import { getGameState, resetGameState } from '../js/game_state.js'
-import { GameStarted, reportError, reportGetContractError } from '../js/errors.js'
+import { GameAlreadyJoined, GameStarted, reportError, reportGetContractError } from '../js/errors.js'
 import { setLoading } from '../js/loading.js'
 
 export default {
     data() {
         return {
+            gameAlreadyJoined: false,
             gameAlreadyStarted: false,
             hostAddress: "",
             userNickname: "",
@@ -57,25 +58,19 @@ export default {
                 }).catch(err => {
                     if (err === GameStarted) {
                         this.gameAlreadyStarted = true;
+                    } else if (err == GameAlreadyJoined) {
+                        this.gameAlreadyJoined = true;
                     } else {
                         reportError("Failed to join game", err);
                     }
+
+                    setLoading(false);
                 });
             }).catch(reportGetContractError)
         },
-        resumeGame: function() {
-            setLoading(true);
-
-            getGameState().then(gameState => {
-                gameState.setHostAddress(this.hostAddress);
-                gameState.setHasJoined(true);
-                if (gameState.isHosting()) {
-                    this.$router.push({ name: 'PlayCard' });
-                } else {
-                    this.$router.push({ name: 'PlayCard' });
-                }
-            }).catch(err => reportError("Failed to get game state while resuming game", err))
-              .finally(() => setLoading(false));
+        goHome: function() {
+            resetGameState();
+            this.$router.push({ name: 'Root' })
         }
     },
 
@@ -87,12 +82,6 @@ export default {
             if (this.userIsHost) {
                 this.hostAddress = gameState.getPlayerAddress();
             }
-
-            // if they've already joined a game, then skip this step
-            if (gameState.hasJoined()) {
-                // TODO: handle when the game has not yet been started
-                this.$router.push({ name: 'PlayCard' });
-            }
         }).catch(err => reportError("Failed to get game state on initialization", err))
           .finally(() => setLoading(false));
     }
@@ -101,7 +90,17 @@ export default {
 </script>
 
 <template>
-    <div v-if="!this.gameAlreadyStarted">
+    <div v-if="this.gameAlreadyStarted">
+        This game has already started and cannot be joined.
+        
+        <button type="submit" @click="this.goHome()">Go Home</button>
+    </div>
+    <div v-else-if="this.gameAlreadyJoined">
+        You have previously joined this game and cannot re-join it.
+        
+        <button type="submit" @click="this.goHome()">Go Home</button>
+    </div>
+    <div v-else>
         <div v-if="!this.waitingForStart">
             <label for="host-address">Host address:</label>
             <input id="host-address" v-model="hostAddress" v-bind:readonly="this.userIsHost" />
@@ -116,12 +115,5 @@ export default {
         <div v-if="this.waitingForStart">
             You are joined to the game. When the game has started, you will be automatically taken to your play card.
         </div>
-    </div>
-    <div v-if="this.gameAlreadyStarted">
-        You are already participating in a game; do you wish to resume it?
-        
-        <button type="submit" @click="this.resumeGame()">Resume Game</button>
-
-        <button type="submit" @click="this.cancel()">Cancel</button>
     </div>
 </template>

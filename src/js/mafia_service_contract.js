@@ -1,4 +1,4 @@
-import { GameAlreadyInitialized, GameStarted } from './errors.js'
+import { GameAlreadyInitialized, GameAlreadyJoined, GameStarted } from './errors.js'
 import * as PlayerRole from './player_role.js'
 import * as PhaseOutcome from './phase_outcome.js'
 import * as TimeOfDay from './time_of_day.js'
@@ -137,6 +137,8 @@ class MafiaContract {
         }).catch(err => {
           if (("" + err).includes("a game cannot be joined while in progress")) {
             reject(GameStarted);
+          } else if (("" + err).includes("a game cannot be joined again")) {
+            reject(GameAlreadyJoined);
           } else {
             reject(err);
           }

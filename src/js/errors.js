@@ -37,6 +37,8 @@ export function reportGetContractError(err) {
 export const GameAlreadyInitialized = {};
 // GameStarted describes when a game has started
 export const GameStarted = {};
+// GameAlreadyJoined describes when a player has already joined a game
+export const GameAlreadyJoined = {};
 
 // UnsupportedChain describes a situation where the in-context chain is unsupported
 export class UnsupportedChain {

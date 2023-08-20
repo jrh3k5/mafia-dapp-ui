@@ -56,34 +56,7 @@ export default {
         this.$router.push({ name: 'JoinGame' });
       }).catch(err => reportError("Failed to get game state on joining game", err))
         .finally(() => setLoading(false));
-    },
-    resumeHosting: function() {
-      setLoading(true);
-
-      getGameState().then(gameState => {
-        gameState.setIsHosting(true);
-        gameState.setIsPlaying(false);
-        gameState.setHostAddress(gameState.getPlayerAddress());
-        gameState.setHasJoined(true);
-        this.$router.push({ name: 'PlayCard' });
-      }).catch(err => reportError("Failed to get game state while resuming game", err))
-        .finally(() => setLoading(false));
     }
-  },
-
-  mounted() {
-    setLoading(true);
-
-    getGameState().then(gameState => {
-      if (gameState.isHosting()) {
-        // go ahead and automatically take the user to the hosting page
-        this.$router.push({ name: 'HostGame' });
-      } else if (gameState.isPlaying()) {
-        // if the user is playing, then they are trying to join a game
-        this.$router.push({ name: 'JoinGame' });
-      }
-    }).catch(err => reportError("Failed to get game state on initialization", err))
-      .finally(() => setLoading(false));
   }
 }
 </script>
@@ -95,9 +68,9 @@ export default {
     <button @click="joinGame">Join Game</button>
   </div>
   <div v-if="this.gameAlreadyInitialized">
-    You are already running a game. Would you like to resume or cancel the existing game?
-    <br />
-    <button type="submit" @click="this.resumeHosting()">Resume Game</button>
+    You are already running a game. Please cancel the existing game if you would like to start a game.
+    
+    <p />
 
     <button type="submit" @click="this.cancelGame()">Cancel Game</button>
   </div>

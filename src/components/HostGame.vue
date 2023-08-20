@@ -36,7 +36,7 @@ export default {
             .finally(() => setLoading(false));
         }).catch(err => {
           if (err === GameStarted) {
-            // Clear the loading indicator so that the user can select whether to cancel or resume the game
+            // Clear the loading indicator so that the user can select to cancel the game
             setLoading(false);
             this.gameAlreadyStarted = true;
           } else {
@@ -44,18 +44,8 @@ export default {
           }
         });
       }).catch(reportGetContractError);
-    },
-    resumeGame: function() {
-      setLoading(true);
-
-      getGameState().then(gameState => {
-        gameState.setIsStarted(true)
-        this.$router.push({ name: 'PlayCard' });
-      }).catch(err => reportError("Failed to get game state on resumption", err))
-        .finally(() => setLoading(false));
     }
   },
-
   mounted() {
     setLoading(true);
 
@@ -83,12 +73,10 @@ export default {
     <button type="submit" @click="this.cancelGame()">Cancel Game</button>
   </div>
   <div v-if="this.gameAlreadyStarted">
-    You are already hosting a running game; do you wish to resume it?
+    You are already hosting a running game. Please cancel the existing game and then start a new game.
     
     <p />
-
-    <button type="submit" @click="this.resumeGame()">Resume Game</button>
-    <p />
+    
     <button type="submit" @click="this.cancel()">Cancel</button>
   </div>
 </template>
