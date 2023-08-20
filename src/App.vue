@@ -13,8 +13,6 @@ export default {
       return true;
     })
 
-console.log("this.$router", this.$router);
-
     this.$router.afterEach(() => {
       clearError();
     })

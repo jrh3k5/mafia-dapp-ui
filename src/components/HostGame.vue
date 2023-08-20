@@ -16,7 +16,7 @@ export default {
       getMafiaService().then(mafiaService => {
         mafiaService.cancelGame().then(() => {
           resetGameState();
-          this.$router.push('/landing');
+          this.$router.push({ name: 'Landing' });
         }).catch(err => reportError("Failed to cancel game", err));
       }).catch(reportGetContractError)
     },
@@ -25,7 +25,7 @@ export default {
         mafiaService.startGame(this.expectedPlayerCount).then(() => {
           getGameState().then(gameState => {
             gameState.setIsStarted(true);
-            this.$router.push('/game/play');
+            this.$router.push({ name: 'PlayCard' });
           }).catch(err => reportError("Failed to get game state", err))
         }).catch(err => {
           if (err === GameStarted) {
@@ -39,7 +39,7 @@ export default {
     resumeGame: function() {
       getGameState().then(gameState => {
         gameState.setIsStarted(true)
-        this.$router.push('/game/play');
+        this.$router.push({ name: 'PlayCard' });
       }).catch(err => reportError("Failed to get game state on resumption", err))
     }
   },
@@ -48,7 +48,7 @@ export default {
     getGameState().then(gameState => {
       if (gameState.isStarted()) {
       // if the game has already been started, then go ahead and take the user to the play card
-      this.$router.push('/game/play');
+      this.$router.push({ name: 'PlayCard' });
       }
     }).catch(err => reportError("Failed to get game state on initialization", err))
   }
