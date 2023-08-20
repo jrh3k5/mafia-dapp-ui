@@ -1,11 +1,8 @@
 <script>
-  import Loading from 'vue-loading-overlay';
-  import 'vue-loading-overlay/dist/css/index.css';
-
 import { addErrorHandler } from './js/errors.js'
 import './css/styles.css'
 import { clearError } from './js/errors.js'
-import { addLoadingHandler, setLoading } from './js/loading.js'
+import { addLoadingHandler } from './js/loading.js'
 
 export default {
   mounted() {
@@ -15,17 +12,25 @@ export default {
         console.error(err);
       }
       
-      // Automatically turn off the loading indicator if something broke
-      this.isLoading = false;
+      if (this.loader) {
+        this.loader.hide();
+      }
 
       return true;
     })
 
     addLoadingHandler(isLoading => {
-      console.log("this.isLoading, before = ", this.isLoading);
-      console.log("isLoading = ", isLoading);
-      this.isLoading = isLoading;
-      console.log("this.isLoading, after = ", this.isLoading);
+      if (isLoading) {
+        if (this.loader) {
+          // don't show the loader again - it's already displayed
+          return;
+        }
+
+        this.loader = this.$loading.show({});
+      } else if(this.loader) {
+        this.loader.hide();
+        this.loader = null;
+      }
     })
 
     this.$router.afterEach(() => {
@@ -33,12 +38,9 @@ export default {
       clearError();
     })
   },
-  components: {
-    Loading
-  },
   data(){
     return {
-      isLoading: false,
+      loader: null,
       errorMessage: null,
     }
   },
@@ -46,8 +48,6 @@ export default {
 </script>
 
 <template>
-  <loading v-model:active="this.isLoading" :is-full-page="true"/>
-
   <div id="main-content">
     <div v-if="this.errorMessage" class="error">
       {{ this.errorMessage }}
