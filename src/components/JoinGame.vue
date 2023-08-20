@@ -20,12 +20,12 @@ export default {
                 getMafiaService().then(mafiaService => {
                     mafiaService.cancelGame().then(() => {
                         resetGameState();
-                        this.$router.push('/landing');
+                        this.$router.push('./landing');
                     }).catch(err => reportError("Failed to cancel game", err))
                 }).catch(reportGetContractError);
             } else {
                 resetGameState();
-                this.$router.push('/landing');
+                this.$router.push('./landing');
             }
         },
         joinGame: function() {
@@ -35,13 +35,13 @@ export default {
                         gameState.setHostAddress(this.hostAddress);
                         gameState.setHasJoined(true);
                         if (gameState.isHosting()) {
-                            this.$router.push('/game/host');
+                            this.$router.push('./game/host');
                         } else {
                             // tell the user that they're waiting for the host to begin the game
                             this.waitingForStart = true;
 
                             mafiaService.waitForGameStart(this.hostAddress).then(() => {
-                                this.$router.push('/game/play');
+                                this.$router.push('./game/play');
                             }).catch(err => reportError("Failed to start waiting for game to start", err))
                         }
                     }).catch(err => reportError("Failed to get game state on joining", err))
@@ -59,9 +59,9 @@ export default {
                 gameState.setHostAddress(this.hostAddress);
                 gameState.setHasJoined(true);
                 if (gameState.isHosting()) {
-                    this.$router.push('/game/play');
+                    this.$router.push('./game/play');
                 } else {
-                    this.$router.push('/game/play');
+                    this.$router.push('./game/play');
                 }
             }).catch(err => reportError("Failed to get game state while resuming game", err))
         }
@@ -77,7 +77,7 @@ export default {
             // if they've already joined a game, then skip this step
             if (gameState.hasJoined()) {
                 // TODO: handle when the game has not yet been started
-                this.$router.push('/game/play');
+                this.$router.push('./game/play');
             }
         }).catch(err => reportError("Failed to get game state on initialization", err))
     }

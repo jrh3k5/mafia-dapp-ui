@@ -11,15 +11,15 @@ import CivilianVictory from './components/CivilianVictory.vue'
 import Root from './components/Root.vue'
 
 const router = createRouter({
-    history: createWebHistory(),
+    history: createWebHistory('/mafia-dapp-ui'),
     routes: [
-        { path: '/mafia-dapp-ui', component: Root },
-        { path: '/mafia-dapp-ui/landing', component: Landing },
-        { path: '/mafia-dapp-ui/game/host', component: HostGame },
-        { path: '/mafia-dapp-ui/game/join', component: JoinGame },
-        { path: '/mafia-dapp-ui/game/play', component: PlayCard },
-        { path: '/mafia-dapp-ui/game/victory/mafia', component: MafiaVictory },
-        { path: '/mafia-dapp-ui/game/victory/civilian', component: CivilianVictory },
+        { path: '/', component: Root },
+        { path: '/landing', component: Landing },
+        { path: '/game/host', component: HostGame },
+        { path: '/game/join', component: JoinGame },
+        { path: '/game/play', component: PlayCard },
+        { path: '/game/victory/mafia', component: MafiaVictory },
+        { path: '/game/victory/civilian', component: CivilianVictory },
     ]
 });
 
