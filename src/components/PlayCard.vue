@@ -199,7 +199,7 @@ export default {
             this.isHosting = gameState.isHosting();
 
             getMafiaService().then(mafiaService => {
-                Promise.all([mafiaService.getPlayerRole(hostAddres), mafiaService.getPlayerNicknames(hostAddress)]).then(results => {
+                Promise.all([mafiaService.getPlayerRole(hostAddress), mafiaService.getPlayerNicknames(hostAddress)]).then(results => {
                     const [playerRole, playerNicknames] = results;
 
                     this.isMafia = playerRole === PlayerRole.PlayerRoleMafia;

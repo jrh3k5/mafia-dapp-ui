@@ -2,7 +2,7 @@
 import { addErrorHandler } from './js/errors.js'
 import './css/styles.css'
 import { clearError } from './js/errors.js'
-import { addLoadingHandler } from './js/loading.js'
+import { addLoadingHandler, setLoading } from './js/loading.js'
 
 export default {
   mounted() {
@@ -12,9 +12,7 @@ export default {
         console.error(err);
       }
       
-      if (this.loader) {
-        this.loader.hide();
-      }
+      setLoading(false);
 
       return true;
     })
