@@ -38,6 +38,9 @@ export default {
             getMafiaService().then(mafiaService => {
                 mafiaService.joinGame(this.hostAddress, this.userNickname).then(() => {
                     getGameState().then(gameState => {
+                        // clear the loading indicator so that the waiting message can be shown to the user
+                        setLoading(false);
+
                         gameState.setHostAddress(this.hostAddress);
                         gameState.setHasJoined(true);
                         if (gameState.isHosting()) {
@@ -48,8 +51,7 @@ export default {
 
                             mafiaService.waitForGameStart(this.hostAddress).then(() => {
                                 this.$router.push({ name: 'PlayCard' });
-                            }).catch(err => reportError("Failed to start waiting for game to start", err))
-                              .finally(() => setLoading(false));
+                            }).catch(err => reportError("Failed to start waiting for game to start", err));
                         }
                     }).catch(err => reportError("Failed to get game state on joining", err))
                 }).catch(err => {

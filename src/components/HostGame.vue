@@ -36,6 +36,8 @@ export default {
             .finally(() => setLoading(false));
         }).catch(err => {
           if (err === GameStarted) {
+            // Clear the loading indicator so that the user can select whether to cancel or resume the game
+            setLoading(false);
             this.gameAlreadyStarted = true;
           } else {
             reportError("Failed to start game", err);

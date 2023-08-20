@@ -37,11 +37,13 @@ export default {
                     mafiaService.accuseAsMafia(gameState.getHostAddress(), this.mafiaAccusation).then(() => {
                         this.waitingForConviction = true;
 
+                        // Clear loading once the accusation has been received so that the user can see the updated instructions
+                        setLoading(false);
+
                         mafiaService.waitForPhaseExecution(gameState.getHostAddress()).then(this.handlePhaseExecution).then(() => {
                             this.mafiaAccusation = null;
                             this.waitingForConviction = false;
-                        }).catch(err => reportError("Failed to wait for phase execution", err))
-                          .finally(() => setLoading(false));
+                        }).catch(err => reportError("Failed to wait for phase execution", err));
                     }).catch(err => reportError("Failed to submit accusation of player being Mafia", err));
                 }).catch(reportGetContractError);
             }).catch(err => reportError("Failed to get game state while accusing another player", err))
@@ -70,10 +72,13 @@ export default {
 
             getGameState().then(gameState => {
                 getMafiaService().then(mafiaService => {
-                    mafiaService.waitForPhaseExecution(gameState.getHostAddress()).then(this.handlePhaseExecution).catch(err => reportError("Failed to wait for phase execution", err));
-                    mafiaService.executePhase().catch(err => reportError("Failed to execute game phase", err));
-                }).catch(reportGetContractError)
-                  .finally(() => setLoading(false));
+                    mafiaService.waitForPhaseExecution(gameState.getHostAddress())
+                                .then(this.handlePhaseExecution)
+                                .catch(err => reportError("Failed to wait for phase execution", err));
+                    mafiaService.executePhase()
+                                .catch(err => reportError("Failed to execute game phase", err))
+                                .finally(() => setLoading(false));
+                }).catch(reportGetContractError);
             }).catch(err => reportError("Failed to get game state on phase execution", err))
         },
         getOtherPlayers: function() {
@@ -121,9 +126,10 @@ export default {
 
                     getGameState().then(gameState => {
                         getMafiaService().then(mafiaService => {
-                            mafiaService.waitForPhaseExecution(gameState.getHostAddress()).then(this.handlePhaseExecution).catch(err => reportError("Failed to wait for phase execution", err));
-                        }).catch(err => reportError("Failed to get Mafia service while preparing to wait for phase execution", err))
-                          .finally(() => setLoading(false));
+                            setLoading(false);
+                            mafiaService.waitForPhaseExecution(gameState.getHostAddress()).then(this.handlePhaseExecution)
+                                        .catch(err => reportError("Failed to wait for phase execution", err));
+                        }).catch(err => reportError("Failed to get Mafia service while preparing to wait for phase execution", err));
                     }).catch(err => reportError("Failed to get game state while preparing to wait for phase execution", err));
                 }
             } else if (timeOfDay == TimeOfDay.TimeOfDayNight) {
@@ -170,11 +176,13 @@ export default {
                     mafiaService.voteToKill(gameState.getHostAddress(), this.killVote).then(() => {
                         this.waitingForMurder = true;
 
+                        // Clear the loading indicator so that the user can see the instructions
+                        setLoading(false);
+
                         mafiaService.waitForPhaseExecution(gameState.getHostAddress()).then(this.handlePhaseExecution).then(() => {
                             this.killVote = null;
                             this.waitingForMurder = false;
-                        }).catch(err => reportError("Failed to wait for phase execution", err))
-                          .finally(() => setLoading(false));
+                        }).catch(err => reportError("Failed to wait for phase execution", err));
                     }).catch(err => reportError("Failed to submit accusation of player being Mafia", err));
                 }).catch(reportGetContractError);
             }).catch(err => reportError("Failed to get game state while voting to kill", err))

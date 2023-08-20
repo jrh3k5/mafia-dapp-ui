@@ -38,6 +38,8 @@ export default {
             .finally(() => setLoading(false));
         }).catch(err => {
           if (err === GameAlreadyInitialized) {
+            // clear the loading indicator so that the user isn't stuck
+            setLoading(false);
             this.gameAlreadyInitialized = true;
           } else {
             reportError("Failed to initialize the game", err)
