@@ -5,7 +5,7 @@
 import { addErrorHandler } from './js/errors.js'
 import './css/styles.css'
 import { clearError } from './js/errors.js'
-import { addLoadingHandler } from './js/loading.js'
+import { addLoadingHandler, setLoading } from './js/loading.js'
 
 export default {
   mounted() {
@@ -22,7 +22,10 @@ export default {
     })
 
     addLoadingHandler(isLoading => {
+      console.log("this.isLoading, before = ", this.isLoading);
+      console.log("isLoading = ", isLoading);
       this.isLoading = isLoading;
+      console.log("this.isLoading, after = ", this.isLoading);
     })
 
     this.$router.afterEach(() => {

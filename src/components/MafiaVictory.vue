@@ -2,6 +2,7 @@
 import { getMafiaService } from '../js/mafia_service.js'
 import { getGameState, clearGameState } from '../js/game_state.js'
 import { reportError, reportGetContractError } from '../js/errors.js'
+import { setLoading } from '../js/loading.js'
 
 export default {
     data() {
@@ -12,11 +13,14 @@ export default {
 
     methods: {
         finishGame: function() {
+            setLoading(true);
+
             getMafiaService().then(mafiaService => {
                 mafiaService.finishGame().then(() => {
                     clearGameState();
                     this.$router.push({ name: 'Root' });
-                }).catch(err => reportError("Failed to finish game", err));
+                }).catch(err => reportError("Failed to finish game", err))
+                  .finally(() => setLoading(false));
             }).catch(reportGetContractError);
         },
         playAgain: function() {
@@ -26,9 +30,11 @@ export default {
     },
 
     mounted() {
+        setLoading(true);
         getGameState().then(gameState => {
             this.isHosting = gameState.isHosting();
         }).catch(err => reportError("Failed to get game state on initialization", err))
+          .finally(() => setLoading(false));
     }
 }
 

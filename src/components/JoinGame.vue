@@ -2,6 +2,7 @@
 import { getMafiaService } from '../js/mafia_service.js'
 import { getGameState, resetGameState } from '../js/game_state.js'
 import { GameStarted, reportError, reportGetContractError } from '../js/errors.js'
+import { setLoading } from '../js/loading.js'
 
 export default {
     data() {
@@ -17,11 +18,14 @@ export default {
     methods: {
         cancel: function() {
             if (this.userIsHost) {
+                setLoading(true);
+
                 getMafiaService().then(mafiaService => {
                     mafiaService.cancelGame().then(() => {
                         resetGameState();
                         this.$router.push({ name: 'Landing' });
                     }).catch(err => reportError("Failed to cancel game", err))
+                      .finally(() => setLoading(false));
                 }).catch(reportGetContractError);
             } else {
                 resetGameState();
@@ -29,6 +33,8 @@ export default {
             }
         },
         joinGame: function() {
+            setLoading(true);
+
             getMafiaService().then(mafiaService => {
                 mafiaService.joinGame(this.hostAddress, this.userNickname).then(() => {
                     getGameState().then(gameState => {
@@ -43,6 +49,7 @@ export default {
                             mafiaService.waitForGameStart(this.hostAddress).then(() => {
                                 this.$router.push({ name: 'PlayCard' });
                             }).catch(err => reportError("Failed to start waiting for game to start", err))
+                              .finally(() => setLoading(false));
                         }
                     }).catch(err => reportError("Failed to get game state on joining", err))
                 }).catch(err => {
@@ -55,6 +62,8 @@ export default {
             }).catch(reportGetContractError)
         },
         resumeGame: function() {
+            setLoading(true);
+
             getGameState().then(gameState => {
                 gameState.setHostAddress(this.hostAddress);
                 gameState.setHasJoined(true);
@@ -64,10 +73,13 @@ export default {
                     this.$router.push({ name: 'PlayCard' });
                 }
             }).catch(err => reportError("Failed to get game state while resuming game", err))
+              .finally(() => setLoading(false));
         }
     },
 
     mounted() {
+        setLoading(true);
+
         getGameState().then(gameState => {
             this.userIsHost = gameState.isHosting();
             if (this.userIsHost) {
@@ -80,6 +92,7 @@ export default {
                 this.$router.push({ name: 'PlayCard' });
             }
         }).catch(err => reportError("Failed to get game state on initialization", err))
+          .finally(() => setLoading(false));
     }
 }
 

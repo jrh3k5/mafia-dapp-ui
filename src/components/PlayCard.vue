@@ -7,6 +7,7 @@ import { GamePlayer } from '../js/player.js'
 import { resetGameState } from '../js/game_state.js'
 import * as PhaseOutcome from '../js/phase_outcome.js'
 import * as TimeOfDay from '../js/time_of_day'
+import { setLoading } from '../js/loading.js'
 
 export default {
     data() {
@@ -29,6 +30,8 @@ export default {
 
     methods: {
         accuse: function() {
+            setLoading(true);
+
             getGameState().then(gameState => {
                 getMafiaService().then(mafiaService => {
                     mafiaService.accuseAsMafia(gameState.getHostAddress(), this.mafiaAccusation).then(() => {
@@ -37,7 +40,8 @@ export default {
                         mafiaService.waitForPhaseExecution(gameState.getHostAddress()).then(this.handlePhaseExecution).then(() => {
                             this.mafiaAccusation = null;
                             this.waitingForConviction = false;
-                        }).catch(err => reportError("Failed to wait for phase execution", err));
+                        }).catch(err => reportError("Failed to wait for phase execution", err))
+                          .finally(() => setLoading(false));
                     }).catch(err => reportError("Failed to submit accusation of player being Mafia", err));
                 }).catch(reportGetContractError);
             }).catch(err => reportError("Failed to get game state while accusing another player", err))
@@ -62,11 +66,14 @@ export default {
             return !thisPlayer.dead && !thisPlayer.convicted;
         },
         executePhase: function() {
+            setLoading(true);
+
             getGameState().then(gameState => {
                 getMafiaService().then(mafiaService => {
                     mafiaService.waitForPhaseExecution(gameState.getHostAddress()).then(this.handlePhaseExecution).catch(err => reportError("Failed to wait for phase execution", err));
                     mafiaService.executePhase().catch(err => reportError("Failed to execute game phase", err));
-                }).catch(reportGetContractError);
+                }).catch(reportGetContractError)
+                  .finally(() => setLoading(false));
             }).catch(err => reportError("Failed to get game state on phase execution", err))
         },
         getOtherPlayers: function() {
@@ -110,10 +117,13 @@ export default {
 
                 // If the player is a civilian, then queue them up to wait for the night phase to finish
                 if (this.isCivilian && !this.isHosting) {
+                    setLoading(true);
+
                     getGameState().then(gameState => {
                         getMafiaService().then(mafiaService => {
                             mafiaService.waitForPhaseExecution(gameState.getHostAddress()).then(this.handlePhaseExecution).catch(err => reportError("Failed to wait for phase execution", err));
-                        }).catch(err => reportError("Failed to get Mafia service while preparing to wait for phase execution", err));
+                        }).catch(err => reportError("Failed to get Mafia service while preparing to wait for phase execution", err))
+                          .finally(() => setLoading(false));
                     }).catch(err => reportError("Failed to get game state while preparing to wait for phase execution", err));
                 }
             } else if (timeOfDay == TimeOfDay.TimeOfDayNight) {
@@ -153,6 +163,8 @@ export default {
             return match
         },
         voteToKill: function() {
+            setLoading(true);
+
             getGameState().then(gameState => {
                 getMafiaService().then(mafiaService => {
                     mafiaService.voteToKill(gameState.getHostAddress(), this.killVote).then(() => {
@@ -161,7 +173,8 @@ export default {
                         mafiaService.waitForPhaseExecution(gameState.getHostAddress()).then(this.handlePhaseExecution).then(() => {
                             this.killVote = null;
                             this.waitingForMurder = false;
-                        }).catch(err => reportError("Failed to wait for phase execution", err));
+                        }).catch(err => reportError("Failed to wait for phase execution", err))
+                          .finally(() => setLoading(false));
                     }).catch(err => reportError("Failed to submit accusation of player being Mafia", err));
                 }).catch(reportGetContractError);
             }).catch(err => reportError("Failed to get game state while voting to kill", err))
@@ -170,6 +183,8 @@ export default {
 
     mounted() {
         this.timeOfDayEnum = TimeOfDay;
+
+        setLoading(true);
 
         getGameState().then(gameState => {
             const hostAddress = gameState.getHostAddress();
@@ -184,18 +199,19 @@ export default {
             this.isHosting = gameState.isHosting();
 
             getMafiaService().then(mafiaService => {
-                mafiaService.getPlayerRole(hostAddress).then(playerRole => {
+                Promise.all([mafiaService.getPlayerRole(hostAddres), mafiaService.getPlayerNicknames(hostAddress)]).then(results => {
+                    const [playerRole, playerNicknames] = results;
+
                     this.isMafia = playerRole === PlayerRole.PlayerRoleMafia;
                     this.isCivilian = playerRole === PlayerRole.PlayerRoleCivilian;
-                }).catch(err => reportError("Failed to get player's information", err));
 
-                mafiaService.getPlayerNicknames(hostAddress).then(playerNicknames => {
                     this.players = [];
                     playerNicknames.forEach((playerNickname, playerAddress) => {
                         this.players.push(new GamePlayer(playerAddress, playerNickname));
                     })
                     this.players.sort((a, b) => a.playerNickname.localeCompare(b.playerNickname));
-                }).catch(err => reportError("Failed to get player nickname map", err));
+                }).catch(err => reportError("Failed to get player information on load", err))
+                  .finally(() => setLoading(false));
             }).catch(reportGetContractError);
         }).catch(err => reportError("Failed to get game state on initialization", err))
     }
