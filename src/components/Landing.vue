@@ -1,7 +1,7 @@
 <script>
 import { getGameState, resetGameState } from '../js/game_state.js'
 import { getMafiaService } from '../js/mafia_service.js'
-import { GameAlreadyInitialized, reportError, reportGetContractError } from '../js/errors.js'
+import { GameAlreadyInitialized, handleMafiaServiceProviderError, handleMountError, reportError } from '../js/errors.js'
 import { setLoading } from '../js/loading.js'
 
 export default {
@@ -22,7 +22,7 @@ export default {
           this.$router.push({ name: 'Landing' });
         }).catch(err => reportError("Failed to cancel existing game", err))
           .finally(() => setLoading(false));
-      }).catch(reportGetContractError);
+      }).catch(err => handleMafiaServiceProviderError(err, this));
     },
     hostGame: function() {
       setLoading(true);
@@ -45,7 +45,7 @@ export default {
             reportError("Failed to initialize the game", err)
           }
         });
-      }).catch(reportGetContractError);
+      }).catch(err => handleMafiaServiceProviderError(err, this));
     },
     joinGame: function() {
       setLoading(true);
@@ -57,6 +57,10 @@ export default {
       }).catch(err => reportError("Failed to get game state on joining game", err))
         .finally(() => setLoading(false));
     }
+  },
+  mounted() {
+    // Try to get the game state to see if the user has navigated here cold
+    getGameState().catch(err => handleMountError(err, this));
   }
 }
 </script>
