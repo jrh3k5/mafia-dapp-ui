@@ -39,3 +39,7 @@ Run the following to build the production distribution and run it locally (usefu
 ```
 npm run build && npx serve dist
 ```
+
+# Attributions
+
+Favicon sourced from [icons8.com](https://icons8.com/icons/set/mafia)
