@@ -1,3 +1,4 @@
+import { NoGameStateProviderSet } from "./errors";
 let gameState;
 let gameStateProvider;
 
@@ -22,16 +23,20 @@ export function resetGameState() {
 
 // getGameState gets, if available, the game state. This can return null if there is no available game state.
 export function getGameState() {
+    return new Promise((resolve, reject) => {
     if (gameState) {
-        return gameState;
+        resolve(gameState);
+        return;
     }
 
     if (!gameStateProvider) {
-        throw 'no game state provider set';
+        reject(NoGameStateProviderSet);
+        return;
     }
 
-    gameState = gameStateProvider.getGameState();
-    return gameState;
+        gameState = gameStateProvider.getGameState();
+        resolve(gameState);
+    })
 }
 
 export function setGameStateProvider(givenProvider) {

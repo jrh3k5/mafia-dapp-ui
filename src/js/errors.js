@@ -39,6 +39,8 @@ export const GameAlreadyInitialized = {};
 export const GameStarted = {};
 // GameAlreadyJoined describes when a player has already joined a game
 export const GameAlreadyJoined = {};
+// NoGameStateProviderSet describes an error where a game state provider is unavailable
+export const NoGameStateProviderSet = {};
 
 // UnsupportedChain describes a situation where the in-context chain is unsupported
 export class UnsupportedChain {
