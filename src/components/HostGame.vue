@@ -1,7 +1,7 @@
 <script>
 import { getMafiaService } from '../js/mafia_service.js'
 import { getGameState, resetGameState } from '../js/game_state.js'
-import { GameStarted, reportError, reportGetContractError } from '../js/errors.js'
+import { GameStarted, handleMountError, reportError, reportGetContractError } from '../js/errors.js'
 import { setLoading } from '../js/loading.js'
 
 export default {
@@ -54,7 +54,7 @@ export default {
       // if the game has already been started, then go ahead and take the user to the play card
       this.$router.push({ name: 'PlayCard' });
       }
-    }).catch(err => reportError("Failed to get game state on initialization", err))
+    }).catch(err => handleMountError(err, this))
       .finally(() => setLoading(false));
   }
 }

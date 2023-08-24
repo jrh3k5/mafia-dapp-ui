@@ -1,7 +1,7 @@
 <script>
 import { getMafiaService } from '../js/mafia_service.js'
 import { getGameState, clearGameState } from '../js/game_state.js'
-import { reportError, reportGetContractError } from '../js/errors.js'
+import { handleMountError, reportError, reportGetContractError } from '../js/errors.js'
 import { setLoading } from '../js/loading.js'
 
 export default {
@@ -33,7 +33,7 @@ export default {
         setLoading(true);
         getGameState().then(gameState => {
             this.isHosting = gameState.isHosting();
-        }).catch(err => reportError("Failed to get game state on initialization", err))
+        }).catch(err => handleMountError(err, this))
           .finally(() => setLoading(false));
     }
 }

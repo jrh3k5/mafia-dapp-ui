@@ -13,6 +13,18 @@ export function clearError() {
     errorHandlers.forEach(errorHandler => errorHandler(null));
 }
 
+// handleMountError provides common error handling for when an error occurs during the mounting of a component
+export function handleMountError(err, component) {
+    if (err == NoGameStateProviderSet) {
+        // The user has come across this page through something other than the front door,
+        // so send them back to it.
+        component.$router.push({ name: "Root" });
+        return;
+    }
+
+    reportError("An error occurred during initialization", err);
+}
+
 // reportError is used to report an error; the first parameter is the human-readable
 // message to show, and the second is an optional error object.
 export function reportError(msg, err) {

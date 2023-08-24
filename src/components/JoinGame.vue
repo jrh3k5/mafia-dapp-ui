@@ -1,7 +1,7 @@
 <script>
 import { getMafiaService } from '../js/mafia_service.js'
 import { getGameState, resetGameState } from '../js/game_state.js'
-import { GameAlreadyJoined, GameStarted, reportError, reportGetContractError } from '../js/errors.js'
+import { GameAlreadyJoined, GameStarted, handleMountError, reportError, reportGetContractError } from '../js/errors.js'
 import { setLoading } from '../js/loading.js'
 
 export default {
@@ -82,7 +82,7 @@ export default {
             if (this.userIsHost) {
                 this.hostAddress = gameState.getPlayerAddress();
             }
-        }).catch(err => reportError("Failed to get game state on initialization", err))
+        }).catch(err => handleMountError(err, this))
           .finally(() => setLoading(false));
     }
 }
