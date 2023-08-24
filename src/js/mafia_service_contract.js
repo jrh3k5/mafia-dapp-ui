@@ -1,4 +1,4 @@
-import { GameAlreadyInitialized, GameAlreadyJoined, GameStarted } from './errors.js'
+import { GameAlreadyInitialized, GameAlreadyJoined, GameStarted, TransactionSignatureRejected } from './errors.js'
 import * as PlayerRole from './player_role.js'
 import * as PhaseOutcome from './phase_outcome.js'
 import * as TimeOfDay from './time_of_day.js'
@@ -19,7 +19,7 @@ export function getMafiaContractProvider(ethersProvider, playerAddress, contract
         const mafiaContract = new MafiaContract(ethersContract, playerAddress);
         mafiaContractHolder = mafiaContract;
         resolve(mafiaContract);
-      }).catch(reject);
+      }).catch(err => reject(this.handleTransactionError(err)));
     })
   }
 }
@@ -35,8 +35,8 @@ class MafiaContract {
   accuseAsMafia(hostAddress, accusedAddress) {
     return new Promise((resolve, reject) => {
       this.contract.accuseAsMafia(hostAddress, accusedAddress).then(txResult => {
-        txResult.wait().then(resolve).catch(reject);
-      }).catch(reject);
+        txResult.wait().then(resolve).catch(err => reject(this.handleTransactionError(err)));
+      }).catch(err => reject(this.handleTransactionError(err)));
     })
   }
 
@@ -45,7 +45,7 @@ class MafiaContract {
     // Return a new promise to ensure that the transaction is submitted before continuing on.
     // Otherwise, funky things happen with the game state.
     return new Promise((resolve, reject) => {
-      this.contract.cancelGame().then(resolve).catch(reject);
+      this.contract.cancelGame().then(resolve).catch(err => reject(this.handleTransactionError(err)));
     })
   }
 
@@ -53,16 +53,16 @@ class MafiaContract {
   executePhase() {
     return new Promise((resolve, reject) => {
       this.contract.executePhase().then(txResult => {
-        txResult.wait().then(resolve).catch(reject);
-      }).catch(reject);
+        txResult.wait().then(resolve).catch(err => reject(this.handleTransactionError(err)));
+      }).catch(err => reject(this.handleTransactionError(err)));
     })
   }
 
   finishGame() {
     return new Promise((resolve, reject) => {
       this.contract.finishGame().then(txResult => {
-        txResult.wait().then(resolve).catch(reject);
-      }).catch(reject);
+        txResult.wait().then(resolve).catch(err => reject(this.handleTransactionError(err)));
+      }).catch(err => reject(this.handleTransactionError(err)));
     })
   }
 
@@ -87,7 +87,7 @@ class MafiaContract {
           default:
             reject(`unexpected player role return: ${playerRole}`);
         }
-      }).catch(reject);
+      }).catch(err => reject(this.handleTransactionError(err)));
     })
   }
 
@@ -101,8 +101,16 @@ class MafiaContract {
           map.set(item[0], item[1]);
         }
         resolve(map);
-      }).catch(reject);
+      }).catch(err => reject(this.handleTransactionError(err)));
     })
+  }
+
+  handleTransactionError(err) {
+    if (this.isTransactionSignatureRejection(err)) {
+      return TransactionSignatureRejected;
+    }
+
+    return err;
   }
 
   // initializeGame returns a Promise to begin a game
@@ -113,16 +121,24 @@ class MafiaContract {
         event.removeListener();
       }).then(() => {
         this.contract.initializeGame().then(tx => {
-          tx.wait().catch(reject);
+          tx.wait().catch(err => reject(this.handleTransactionError(err)));
         }).catch(err => {
           if (("" + err).includes("a game cannot be initialized while you are hosting another")) {
             reject(GameAlreadyInitialized)
+          } else if (this.isTransactionSignatureRejection(err)) {
+            reject(TransactionSignatureRejected);
           } else {
             reject(err);
           }
         });
-      }).catch(reject);
+      }).catch(err => reject(this.handleTransactionError(err)));
     });
+  }
+
+  // isTransactionSignatureRejection determines if the error is a result of the user rejecting
+  // a signature request.
+  isTransactionSignatureRejection(err) {
+    return ("" + err).includes("denied transaction signature");
   }
 
   // joinGame returns a Promise that either resolves on a successful game join or rejects with the caught errors.
@@ -133,12 +149,14 @@ class MafiaContract {
         resolve();
       }).then(() => {
         this.contract.joinGame(hostAddress, playerNickname).then(tx => {
-          tx.wait().catch(reject);
+          tx.wait().catch(err => reject(this.handleTransactionError(err)));
         }).catch(err => {
           if (("" + err).includes("a game cannot be joined while in progress")) {
             reject(GameStarted);
           } else if (("" + err).includes("a game cannot be joined again")) {
             reject(GameAlreadyJoined);
+          } else if (this.isTransactionSignatureRejection(err)) {
+            reject(TransactionSignatureRejected);
           } else {
             reject(err);
           }
@@ -155,10 +173,12 @@ class MafiaContract {
       this.contract.startGame(expectedPlayerCount).then(tx => {
         tx.wait().then(() => {
           resolve();
-        }).catch(reject);
+        }).catch(err => reject(this.handleTransactionError(err)));
       }).catch(err => {
         if (("" + err).includes("a game cannot be started while already in progress")) {
           reject(GameStarted);
+        } else if (this.isTransactionSignatureRejection(err)) {
+          reject(TransactionSignatureRejected);
         } else {
           reject(err);
         }
@@ -169,8 +189,8 @@ class MafiaContract {
   voteToKill(hostAddres, victimAddress) {
     return new Promise((resolve, reject) => {
       this.contract.voteToKill(hostAddres, victimAddress).then(txResult => {
-        txResult.wait().then(resolve).catch(reject);
-      }).catch(reject)
+        txResult.wait().then(resolve).catch(err => reject(this.handleTransactionError(err)));
+      }).catch(err => reject(this.handleTransactionError(err)))
     })
   }
 
@@ -218,14 +238,14 @@ class MafiaContract {
         }
 
         resolve([phaseOutcome, timeOfDay, killed, convicted]);
-      }).catch(reject);
+      }).catch(err => reject(this.handleTransactionError(err)));
     })
   }
 
   // waitForGameStart waits for a game started by the given host address
   waitForGameStart(hostAddress) {
     return new Promise((resolve, reject) => {
-      this.contract.once(this.contract.filters.GameStarted(hostAddress), resolve).catch(reject);
+      this.contract.once(this.contract.filters.GameStarted(hostAddress), resolve).catch(err => reject(this.handleTransactionError(err)));
     })
   }
 }

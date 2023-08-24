@@ -1,17 +1,21 @@
 <script>
 import { addErrorHandler } from './js/errors.js'
 import './css/styles.css'
-import { clearError } from './js/errors.js'
+import { TransactionSignatureRejected, clearError } from './js/errors.js'
 import { addLoadingHandler, setLoading } from './js/loading.js'
 
 export default {
   mounted() {
     addErrorHandler((msg, err) => {
-      this.errorMessage = msg;
-      if (err) {
-        console.error(err);
+      // don't show an error if the user rejected the transaction
+      // presumably, they know they did this already
+      if (err != TransactionSignatureRejected) {        
+        this.errorMessage = msg;
+        if (err) {
+          console.error(err);
+        }
       }
-      
+        
       setLoading(false);
 
       return true;
