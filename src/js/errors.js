@@ -63,6 +63,8 @@ export const GameAlreadyJoined = {};
 export const NoGameStateProviderSet = {};
 // NoMafiaServiceProviderSet indicates an error where a Mafia service provider is not set
 export const NoMafiaServiceProviderSet = {};
+// TransactionSignatureRejected describes when the user declines to sign a transaction
+export const TransactionSignatureRejected = {};
 
 // UnsupportedChain describes a situation where the in-context chain is unsupported
 export class UnsupportedChain {
