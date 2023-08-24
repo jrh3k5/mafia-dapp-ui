@@ -1,7 +1,7 @@
 <script>
 import { getMafiaService } from '../js/mafia_service.js'
 import { getGameState, resetGameState } from '../js/game_state.js'
-import { GameAlreadyJoined, GameStarted, handleMountError, reportError, reportGetContractError } from '../js/errors.js'
+import { GameAlreadyJoined, GameStarted, handleMountError, reportError } from '../js/errors.js'
 import { setLoading } from '../js/loading.js'
 
 export default {
@@ -27,7 +27,7 @@ export default {
                         this.$router.push({ name: 'Landing' });
                     }).catch(err => reportError("Failed to cancel game", err))
                       .finally(() => setLoading(false));
-                }).catch(reportGetContractError);
+                }).catch(err => handleMafiaServiceProviderError(err, this));
             } else {
                 resetGameState();
                 this.$router.push({ name: 'Landing' });
@@ -66,7 +66,7 @@ export default {
 
                     setLoading(false);
                 });
-            }).catch(reportGetContractError)
+            }).catch(err => handleMafiaServiceProviderError(err, this));
         },
         goHome: function() {
             resetGameState();

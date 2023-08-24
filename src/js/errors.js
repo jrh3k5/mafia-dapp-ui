@@ -25,6 +25,18 @@ export function handleMountError(err, component) {
     reportError("An error occurred during initialization", err);
 }
 
+// handleMafiaServiceProviderError handles when retrieving the Mafia service provider fails
+export function handleMafiaServiceProviderError(err, component) {
+    if (err == NoMafiaServiceProviderSet) {
+        // The user has somehow reached this page without initializing the Mafia service provider,
+        // so just send them back to the front door
+        component.$router.push({ name: "Root" })
+        return;
+    }
+
+    reportError("An error occurred while trying to retrieve the Mafia service provider", err);
+}
+
 // reportError is used to report an error; the first parameter is the human-readable
 // message to show, and the second is an optional error object.
 export function reportError(msg, err) {
@@ -41,10 +53,6 @@ export function reportError(msg, err) {
     alert(msg);
 }
 
-export function reportGetContractError(err) {
-    reportError("failed to retrieve the Mafia contract information", err);
-}
-
 // GameAlreadyInitialized describes when a game has been initialized (but not yet started)
 export const GameAlreadyInitialized = {};
 // GameStarted describes when a game has started
@@ -53,6 +61,8 @@ export const GameStarted = {};
 export const GameAlreadyJoined = {};
 // NoGameStateProviderSet describes an error where a game state provider is unavailable
 export const NoGameStateProviderSet = {};
+// NoMafiaServiceProviderSet indicates an error where a Mafia service provider is not set
+export const NoMafiaServiceProviderSet = {};
 
 // UnsupportedChain describes a situation where the in-context chain is unsupported
 export class UnsupportedChain {

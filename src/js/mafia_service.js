@@ -5,17 +5,20 @@ import { getSupportedChains } from './networks.js'
 import { setGameStateProvider } from './game_state.js'
 import { ethers } from 'ethers'
 import { isDevelopment } from './environment.js'
-import { UnsupportedChain } from './errors.js'
+import { NoMafiaServiceProviderSet, UnsupportedChain } from './errors.js'
 
 let mafiaServiceProvider
 
 // getMafiaService gets the provided Mafia service, if set
 export function getMafiaService() {
-    if (!mafiaServiceProvider) {
-        throw 'no Mafia service provider set'
-    }
-
-    return mafiaServiceProvider()
+    return new Promise((resolve, reject) => {
+        if (!mafiaServiceProvider) {
+            reject(NoMafiaServiceProviderSet)
+            return;
+        }
+    
+        resolve(mafiaServiceProvider())
+    })
 }
 
 // setMafiaServiceProvider accepts a no-arg function that returns a Promise that resolves to the Mafia service (defined below)

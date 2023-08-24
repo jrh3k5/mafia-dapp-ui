@@ -1,7 +1,7 @@
 <script>
 import { getMafiaService } from '../js/mafia_service.js'
 import { getGameState } from '../js/game_state.js'
-import { handleMountError, reportError, reportGetContractError } from '../js/errors.js'
+import { handleMafiaServiceProviderError, handleMountError, reportError } from '../js/errors.js'
 import * as PlayerRole from '../js/player_role.js'
 import { GamePlayer } from '../js/player.js'
 import { resetGameState } from '../js/game_state.js'
@@ -45,7 +45,7 @@ export default {
                             this.waitingForConviction = false;
                         }).catch(err => reportError("Failed to wait for phase execution", err));
                     }).catch(err => reportError("Failed to submit accusation of player being Mafia", err));
-                }).catch(reportGetContractError);
+                }).catch(err => handleMafiaServiceProviderError(err, this));
             }).catch(err => reportError("Failed to get game state while accusing another player", err))
         },
         beginNextPhase: function() {
@@ -78,7 +78,7 @@ export default {
                     mafiaService.executePhase()
                                 .catch(err => reportError("Failed to execute game phase", err))
                                 .finally(() => setLoading(false));
-                }).catch(reportGetContractError);
+                }).catch(err => handleMafiaServiceProviderError(err, this));
             }).catch(err => reportError("Failed to get game state on phase execution", err))
         },
         getOtherPlayers: function() {
@@ -184,7 +184,7 @@ export default {
                             this.waitingForMurder = false;
                         }).catch(err => reportError("Failed to wait for phase execution", err));
                     }).catch(err => reportError("Failed to submit accusation of player being Mafia", err));
-                }).catch(reportGetContractError);
+                }).catch(err => handleMafiaServiceProviderError(err, this));
             }).catch(err => reportError("Failed to get game state while voting to kill", err))
         }
     },
