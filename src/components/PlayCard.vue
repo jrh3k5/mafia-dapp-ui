@@ -220,7 +220,7 @@ export default {
                     this.players.sort((a, b) => a.playerNickname.localeCompare(b.playerNickname));
                 }).catch(err => handleMountError(err, this))
                   .finally(() => setLoading(false));
-            }).catch(handleMountError(err, this));
+            }).catch(err => handleMountError(err, this));
         }).catch(err => handleMountError(err, this));
     }
 }
