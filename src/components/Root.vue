@@ -47,6 +47,15 @@ export default {
 
     <hr />
 
+    This is currently only deployed on the Base Goerli network. You can obtain enough Goerli ETH for at least one game by visiting the following faucets:
+
+    <ul>
+        <li><a href="https://www.coinbase.com/faucets/base-ethereum-goerli-faucet">Coinbase</a></li>
+        <li><a href="https://faucet.quicknode.com/base/goerli/">QuickNode</a></li>
+    </ul>
+
+    <hr />
+
     <h2>Rules</h2>
 
     <ul>
