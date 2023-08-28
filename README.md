@@ -20,8 +20,17 @@ npm run dev
 
 To run against the HTTP backend, do the following:
 
+If in a UNIX-compatible environment, run:
+
 ```sh
 export MAFIA_BACKEND=http && npm run dev
+```
+
+If running in Windows, run:
+
+```
+$env:MAFIA_BACKEND = 'http'
+npm run dev
 ```
 
 ### Compile and Minify for Production

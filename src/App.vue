@@ -56,6 +56,7 @@ export default {
 <title>Mafia Dapp</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
 <link rel="stylesheet" type="text/css" href="./src/css/city.css" />
+<link rel="stylesheet" type="text/css" href="./src/css/styles.css" />
 </head>
 <body>
 <div id="wrap">
