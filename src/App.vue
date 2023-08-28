@@ -60,14 +60,7 @@ export default {
 <body>
 <div id="wrap">
   <div id="header"><br />
-    <h3>City</h3>
     <p><strong>Mafia Dapp</strong></p>
-  </div>
-  <div id="left">
-    <!-- deliberately left empty -->
-  </div>
-  <div id="right">
-    <!-- deliberately left empty -->
   </div>
   <div id="content">
     <div v-if="this.errorMessage" class="error">
@@ -78,7 +71,7 @@ export default {
     </div>
   </div>
   <div id="footer">
-    <p class="text_footer">Design by kty <a href="http://www.studio-plume.org">studio-plume.org</a>.</p>
+    <p class="text_footer">Adapted from design by kty <a href="http://www.studio-plume.org">studio-plume.org</a>.</p>
   </div>
 </div>
 </body>
