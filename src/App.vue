@@ -1,5 +1,6 @@
 <script>
 import { addErrorHandler } from './js/errors.js'
+import './css/city.css'
 import './css/styles.css'
 import { TransactionSignatureRejected, clearError } from './js/errors.js'
 import { addLoadingHandler, setLoading } from './js/loading.js'
@@ -55,8 +56,6 @@ export default {
 <head>
 <title>Mafia Dapp</title>
 <meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<link rel="stylesheet" type="text/css" href="./src/css/city.css" />
-<link rel="stylesheet" type="text/css" href="./src/css/styles.css" />
 </head>
 <body>
 <div id="wrap">
