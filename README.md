@@ -42,4 +42,5 @@ npm run build && npx serve dist
 
 # Attributions
 
-Favicon sourced from [icons8.com](https://icons8.com/icons/set/mafia)
+* Favicon sourced from [icons8.com](https://icons8.com/icons/set/mafia)
+* CSS template is from [free-css.com](https://www.free-css.com/free-css-templates/page89/city)
