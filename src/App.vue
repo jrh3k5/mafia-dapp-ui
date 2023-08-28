@@ -50,7 +50,26 @@ export default {
 </script>
 
 <template>
-  <div id="main-content">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<title>Mafia Dapp</title>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="city.css" />
+</head>
+<body>
+<div id="wrap">
+  <div id="header"><br />
+    <h3>City</h3>
+    <p><strong>Mafia Dapp</strong></p>
+  </div>
+  <div id="left">
+    <!-- deliberately left empty -->
+  </div>
+  <div id="right">
+    <!-- deliberately left empty -->
+  </div>
+  <div id="content">
     <div v-if="this.errorMessage" class="error">
       {{ this.errorMessage }}
     </div>
@@ -58,4 +77,10 @@ export default {
       <router-view></router-view>
     </div>
   </div>
+  <div id="footer">
+    <p class="text_footer">Design by kty <a href="http://www.studio-plume.org">studio-plume.org</a>.</p>
+  </div>
+</div>
+</body>
+</html>
 </template>

@@ -229,10 +229,10 @@ export default {
 <template>
     <div class="player-role">
         <div v-if="this.isMafia">
-            <img class="player-role-profile-pic" src="../img/mafia.png" /> You are MAFIA.
+            <img class="player-role-profile-pic" src="../images/mafia.png" /> You are MAFIA.
         </div>
         <div v-if="this.isCivilian">
-            <img class="player-role-profile-pic" src="../img/civilian.png" /> You are a CIVILIAN.
+            <img class="player-role-profile-pic" src="../images/civilian.png" /> You are a CIVILIAN.
         </div>
     </div>
 
